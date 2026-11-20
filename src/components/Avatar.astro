@@ -1,0 +1,45 @@
+---
+// Profile picture. Until the AI-styled portrait is ready, a gradient monogram stands in.
+// To use the photo: put it at public/avatar.webp (square, ~800×800) and set AVATAR below.
+const AVATAR: string | null = null; // e.g. '/avatar.webp'
+
+interface Props {
+  name: string;
+}
+
+const { name } = Astro.props;
+---
+
+<div class="avatar">
+  {AVATAR ? <img src={AVATAR} alt={name} width="160" height="160" /> : <span aria-hidden="true">TL</span>}
+</div>
+
+<style>
+  .avatar {
+    flex-shrink: 0;
+    width: clamp(96px, 14vw, 160px);
+    aspect-ratio: 1;
+    border-radius: 50%;
+    padding: 2px;
+    background: var(--gradient);
+    box-shadow: 0 0 60px rgba(179, 107, 255, 0.25);
+  }
+
+  .avatar img,
+  .avatar span {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+
+  .avatar span {
+    display: grid;
+    place-items: center;
+    background: var(--bg-card);
+    font-size: clamp(2rem, 4vw, 3.25rem);
+    font-weight: 640;
+    letter-spacing: -0.04em;
+    color: var(--text);
+  }
+</style>

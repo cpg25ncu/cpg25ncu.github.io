@@ -1,0 +1,75 @@
+---
+import '@fontsource-variable/inter';
+import '@fontsource-variable/jetbrains-mono';
+import '../styles/global.css';
+import Nav from '../components/Nav.astro';
+import Footer from '../components/Footer.astro';
+import { languages, alternatePath, t, type Lang } from '../i18n/ui';
+
+interface Props {
+  lang: Lang;
+  title?: string;
+  description?: string;
+}
+
+const { lang, title, description } = Astro.props;
+const copy = t(lang);
+const pageTitle = title ? `${title} — ${copy.siteTitle}` : `${copy.siteTitle} — ${lang === 'en' ? 'Computer Vision & Multimodal Learning' : '计算机视觉与多模态学习'}`;
+const desc = description ?? copy.siteDescription;
+const path = Astro.url.pathname;
+const other: Lang = lang === 'en' ? 'zh' : 'en';
+const canonical = new URL(path, Astro.site);
+const alternate = new URL(alternatePath(path, lang), Astro.site);
+---
+
+<!doctype html>
+<html lang={languages[lang].htmlLang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="dark" />
+    <meta name="theme-color" content="#08090a" />
+    <title>{pageTitle}</title>
+    <meta name="description" content={desc} />
+    <link rel="canonical" href={canonical} />
+    <link rel="alternate" hreflang={languages[lang].htmlLang} href={canonical} />
+    <link rel="alternate" hreflang={languages[other].htmlLang} href={alternate} />
+    <link rel="alternate" hreflang="x-default" href={new URL(lang === 'en' ? path : alternatePath(path, lang), Astro.site)} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={desc} />
+    <meta property="og:url" content={canonical} />
+    <meta name="generator" content={Astro.generator} />
+  </head>
+  <body>
+    <a class="skip" href="#main">{lang === 'en' ? 'Skip to content' : '跳到正文'}</a>
+    <Nav lang={lang} />
+    <main id="main">
+      <slot />
+    </main>
+    <Footer lang={lang} />
+    <script>
+      import { initMotion } from '../scripts/motion';
+      initMotion();
+    </script>
+  </body>
+</html>
+
+<style>
+  .skip {
+    position: absolute;
+    left: 16px;
+    top: -60px;
+    z-index: 100;
+    padding: 8px 14px;
+    border-radius: var(--r-pill);
+    background: var(--blue-btn);
+    color: #fff;
+    font-size: 14px;
+  }
+
+  .skip:focus {
+    top: 12px;
+  }
+</style>

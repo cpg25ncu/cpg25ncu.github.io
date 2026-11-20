@@ -1,0 +1,468 @@
+---
+// Illustrative SVG diagrams for each project, used until real screenshots / recordings are added.
+// `step` selects which overlay is shown; the project page changes it while you scroll the chapters.
+interface Props {
+  kind: 'avsr' | 'gesture' | 'hinger' | 'serms';
+  step?: number;
+  label: string;
+}
+
+const { kind, step = 0, label } = Astro.props;
+const k = kind;
+
+// ---------- AVSR ----------
+const wave = [0.25, 0.5, 0.35, 0.8, 0.55, 0.95, 0.6, 0.4, 0.75, 1, 0.7, 0.45, 0.3, 0.65, 0.9, 0.5, 0.35, 0.6, 0.85, 0.55, 0.3, 0.45, 0.7, 0.4, 0.25, 0.5, 0.35, 0.2];
+const mfcc = Array.from({ length: 4 }, (_, r) => Array.from({ length: 9 }, (_, c) => 0.15 + 0.7 * Math.abs(Math.sin((r + 1) * (c + 2) * 0.7))));
+const lipOuter = Array.from({ length: 18 }, (_, i) => {
+  const a = (i / 18) * Math.PI * 2;
+  const upper = Math.sin(a) < 0;
+  const bow = upper ? 7 * Math.exp(-Math.pow(Math.cos(a), 2) * 18) : 0;
+  return [370 + 64 * Math.cos(a), 100 + (upper ? 24 : 28) * Math.sin(a) + bow];
+});
+const lipInner = Array.from({ length: 12 }, (_, i) => {
+  const a = (i / 12) * Math.PI * 2;
+  return [370 + 40 * Math.cos(a), 101 + 8 * Math.sin(a)];
+});
+const dct = Array.from({ length: 4 }, (_, r) => Array.from({ length: 4 }, (_, c) => (r === 0 && c === 0 ? 1 : 0.85 / (1 + r + c))));
+
+// ---------- Gesture (MediaPipe hand topology, open palm) ----------
+const hand: [number, number][] = [
+  [200, 280], [177.5, 257.5], [149.4, 232.7], [127.6, 213.6], [109.6, 197.7],
+  [161, 162.5], [150.7, 116.2], [144.1, 86.9], [138.9, 63.5],
+  [194, 155], [194, 102.5], [194, 68.5], [194, 43.5],
+  [226, 162.5], [233.8, 114.2], [238.7, 83.6], [242.3, 60.9],
+  [254, 180], [268.1, 145.3], [277.1, 123], [284.6, 104.5],
+];
+const bones: [number, number][] = [
+  [0, 1], [1, 2], [2, 3], [3, 4], [0, 5], [5, 6], [6, 7], [7, 8], [5, 9], [9, 10], [10, 11], [11, 12],
+  [9, 13], [13, 14], [14, 15], [15, 16], [13, 17], [0, 17], [17, 18], [18, 19], [19, 20],
+];
+const fingerColor = (i: number) =>
+  i === 0 ? '#f7f8f8' : i <= 4 ? '#5ee7ff' : i <= 8 ? '#6c8cff' : i <= 12 ? '#b36bff' : i <= 16 ? '#ff6bb5' : '#ffb36b';
+const boneColor = ([a, b]: [number, number]) => (a === 0 || (a % 4 === 1 && b % 4 === 1) ? 'rgba(208,214,224,0.45)' : fingerColor(b));
+const tips = new Set([4, 8, 12, 16, 20]);
+
+// ---------- Hinger ----------
+const board = [
+  [2, 3, 0, 1, 2],
+  [1, 2, 0, 3, 1],
+  [0, 1, 1, 1, 0],
+  [1, 0, 0, 0, 2],
+  [2, 1, 0, 1, 1],
+];
+const cell = 44;
+const gap = 8;
+const bx = 34;
+const by = 22;
+const cx = (c: number) => bx + c * (cell + gap) + cell / 2;
+const cy = (r: number) => by + r * (cell + gap) + cell / 2;
+const edges: [number, number, number, number][] = [];
+board.forEach((row, r) =>
+  row.forEach((v, c) => {
+    if (!v) return;
+    if (c + 1 < 5 && board[r][c + 1]) edges.push([r, c, r, c + 1]);
+    if (r + 1 < 5 && board[r + 1][c]) edges.push([r, c, r + 1, c]);
+  }),
+);
+const boardEnd = bx + 5 * cell + 4 * gap;
+
+// ---------- SERMS ----------
+const stages = ['build', 'test', 'CodeQL', 'Trivy', 'gitleaks', 'coverage gate', 'deploy · HTTPS'];
+---
+
+<div class="pv" data-kind={k} data-step={step} role="img" aria-label={label}>
+  <svg viewBox="0 0 480 300" preserveAspectRatio="xMidYMid meet">
+    <defs>
+      <pattern id={`${k}-dots`} width="16" height="16" patternUnits="userSpaceOnUse">
+        <circle cx="1" cy="1" r="1" fill="rgba(255,255,255,0.06)"></circle>
+      </pattern>
+      <linearGradient id={`${k}-grad`} x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0" stop-color="#5ee7ff"></stop>
+        <stop offset="0.35" stop-color="#6c8cff"></stop>
+        <stop offset="0.6" stop-color="#b36bff"></stop>
+        <stop offset="0.82" stop-color="#ff6bb5"></stop>
+        <stop offset="1" stop-color="#ffb36b"></stop>
+      </linearGradient>
+      <radialGradient id={`${k}-node`}>
+        <stop offset="0" stop-color="#ffffff"></stop>
+        <stop offset="0.35" stop-color="#b36bff"></stop>
+        <stop offset="1" stop-color="#6c8cff" stop-opacity="0"></stop>
+      </radialGradient>
+    </defs>
+    <rect width="480" height="300" fill={`url(#${k}-dots)`}></rect>
+
+    {
+      k === 'avsr' && (
+        <g>
+          <g class="b hl-1">
+            <text class="lbl" x="40" y="38">AUDIO · MFCC</text>
+            {wave.map((h, i) => (
+              <rect class="bar" x={40 + i * 5.8} y={95 - h * 34} width="3" height={h * 68} rx="1.5" fill={`url(#${k}-grad)`} style={`animation-delay:${(i % 7) * -0.17}s`} />
+            ))}
+            {mfcc.map((row, r) =>
+              row.map((v, c) => <rect x={40 + c * 17.5} y={142 + r * 9} width="15" height="7" rx="1.5" fill="#6c8cff" opacity={v * 0.8} />),
+            )}
+          </g>
+          <g class="b hl-2">
+            <text class="lbl" x="290" y="38">VIDEO · LIP LANDMARKS</text>
+            <g class="lips">
+              <polygon points={lipOuter.map((p) => p.join(',')).join(' ')} fill="none" stroke="rgba(255,107,181,0.55)" stroke-width="1.2" />
+              <polygon points={lipInner.map((p) => p.join(',')).join(' ')} fill="none" stroke="rgba(255,179,107,0.5)" stroke-width="1.2" />
+              {lipOuter.map(([x, y]) => <circle cx={x} cy={y} r="2.6" fill="#ff6bb5" />)}
+              {lipInner.map(([x, y]) => <circle cx={x} cy={y} r="2.2" fill="#ffb36b" />)}
+            </g>
+            <text class="lbl sm" x="310" y="150">2D-DCT</text>
+            {dct.map((row, r) => row.map((v, c) => <rect x={310 + c * 10} y={158 + r * 10} width="8" height="8" rx="1.5" fill="#ff6bb5" opacity={v} />))}
+            <text class="lbl sm" x="372" y="150">LIP SHAPE</text>
+            <path d="M372 182 q 14 -16 28 0 q 14 16 28 0" fill="none" stroke="#ffb36b" stroke-width="1.5" opacity="0.8" />
+          </g>
+          <g class="b hl-3">
+            <path class="flow" d="M118 182 C 130 230, 190 232, 222 236" fill="none" stroke="#6c8cff" stroke-width="1.5" />
+            <path class="flow" d="M370 202 C 360 236, 290 236, 258 236" fill="none" stroke="#ff6bb5" stroke-width="1.5" />
+            <circle class="pulse" cx="240" cy="236" r="26" fill={`url(#${k}-node)`} opacity="0.55" />
+            <circle cx="240" cy="236" r="9" fill="#f7f8f8" />
+            <text class="lbl" x="240" y="284" text-anchor="middle">EARLY · LATE · ADAPTIVE FUSION</text>
+          </g>
+          <g class="ov on-4">
+            <rect x="36" y="36" width="408" height="228" rx="14" fill="#111213" stroke="rgba(255,255,255,0.1)" />
+            <text class="lbl" x="60" y="72">AUDIO ACCURACY AT 0 dB</text>
+            <text class="lbl sm" x="60" y="112">BEFORE</text>
+            <rect x="60" y="120" width="360" height="18" rx="9" fill="rgba(255,255,255,0.05)" />
+            <rect class="grow" x="60" y="120" width={360 * 0.305} height="18" rx="9" fill="#62666d" />
+            <text class="val" x={60 + 360 * 0.305 + 10} y="134">30.5%</text>
+            <text class="lbl sm" x="60" y="178">MULTI-CONDITION TRAINING</text>
+            <rect x="60" y="186" width="360" height="18" rx="9" fill="rgba(255,255,255,0.05)" />
+            <rect class="grow" x="60" y="186" width={360 * 0.777} height="18" rx="9" fill={`url(#${k}-grad)`} />
+            <text class="val" x={60 + 360 * 0.777 + 10} y="200">77.7%</text>
+          </g>
+        </g>
+      )
+    }
+
+    {
+      k === 'gesture' && (
+        <g>
+          <g class="b hl-1 hl-2 hl-3">
+            <path d="M92 24 h16 M92 24 v16 M308 24 h-16 M308 24 v16 M92 296 h16 M92 296 v-16 M308 296 h-16 M308 296 v-16" stroke="rgba(94,231,255,0.7)" stroke-width="1.5" fill="none" />
+            <text class="lbl" x="98" y="18" fill="#5ee7ff">HAND</text>
+            {bones.map(([a, b]) => (
+              <line x1={hand[a][0]} y1={hand[a][1]} x2={hand[b][0]} y2={hand[b][1]} stroke={boneColor([a, b])} stroke-width="2" stroke-linecap="round" opacity="0.8" />
+            ))}
+            {hand.map(([x, y], i) => (
+              <g>
+                {tips.has(i) && <circle class="pulse" cx={x} cy={y} r="10" fill={fingerColor(i)} opacity="0.18" />}
+                <circle cx={x} cy={y} r={tips.has(i) ? 5 : 4} fill={fingerColor(i)} />
+              </g>
+            ))}
+          </g>
+          <g class="ov on-1">
+            <line x1="200" y1="280" x2="250" y2="280" stroke="#62666d" stroke-dasharray="3 3" />
+            <line x1="200" y1="280" x2="200" y2="230" stroke="#62666d" stroke-dasharray="3 3" />
+            <text class="lbl" x="330" y="96">21 LANDMARKS</text>
+            <text class="mono" x="330" y="124">(x, y) × 21</text>
+            <text class="lbl sm" x="330" y="160">NORMALISE</text>
+            <text class="mono" x="330" y="184">position</text>
+            <text class="mono" x="330" y="206">scale</text>
+          </g>
+          <g class="ov on-2">
+            <text class="lbl" x="330" y="86">CLASSIFIERS</text>
+            <rect x="330" y="100" width="128" height="34" rx="17" fill="#111213" stroke="rgba(255,255,255,0.14)" />
+            <text class="mono" x="394" y="122" text-anchor="middle">Logistic Reg.</text>
+            <rect x="330" y="144" width="128" height="34" rx="17" fill="#111213" stroke="rgba(255,255,255,0.14)" />
+            <text class="mono" x="394" y="166" text-anchor="middle">Decision Tree</text>
+            <rect x="330" y="188" width="128" height="34" rx="17" fill="#111213" stroke={`url(#${k}-grad)`} stroke-width="1.5" />
+            <text class="mono" x="394" y="210" text-anchor="middle">kNN · scratch</text>
+          </g>
+          <g class="ov on-3">
+            <text class="lbl" x="330" y="70">ADAPTIVE γ</text>
+            <rect x="330" y="80" width="120" height="80" rx="8" fill="#111213" stroke="rgba(255,255,255,0.1)" />
+            <path d="M338 152 L442 88" stroke="#62666d" stroke-dasharray="3 3" />
+            <path d="M338 152 C 352 108, 384 94, 442 88" stroke="#5ee7ff" stroke-width="1.8" fill="none" />
+            <text class="lbl" x="330" y="190">MEDIAN FILTER</text>
+            <path d="M330 220 l8 -10 l8 14 l8 -18 l8 16 l8 -12 l8 10 l8 -14 l8 12 l8 -8 l8 6 l8 -10 l8 8 l8 -4 l8 2" stroke="#62666d" fill="none" />
+            <path d="M330 216 C 360 210, 390 214, 450 212" stroke="#ff6bb5" stroke-width="1.8" fill="none" />
+          </g>
+        </g>
+      )
+    }
+
+    {
+      k === 'hinger' && (
+        <g>
+          <g class="b hl-1 hl-2 hl-3">
+            {board.map((row, r) =>
+              row.map((v, c) => (
+                <g>
+                  <rect
+                    x={bx + c * (cell + gap)}
+                    y={by + r * (cell + gap)}
+                    width={cell}
+                    height={cell}
+                    rx="9"
+                    fill={v ? '#16171a' : 'rgba(255,255,255,0.015)'}
+                    stroke={v ? 'rgba(255,255,255,0.14)' : 'rgba(255,255,255,0.05)'}
+                    stroke-dasharray={v ? undefined : '3 4'}
+                  />
+                  {v > 0 && (
+                    <text class="num" x={cx(c)} y={cy(r) + 6} text-anchor="middle">
+                      {v}
+                    </text>
+                  )}
+                </g>
+              )),
+            )}
+          </g>
+          <g class="ov on-0">
+            {edges.map(([r1, c1, r2, c2]) => (
+              <line x1={cx(c1)} y1={cy(r1)} x2={cx(c2)} y2={cy(r2)} stroke="rgba(108,140,255,0.55)" stroke-width="2" />
+            ))}
+            <circle class="pulse" cx={cx(2)} cy={cy(2)} r="30" fill="#b36bff" opacity="0.2" />
+            <rect x={bx + 2 * (cell + gap)} y={by + 2 * (cell + gap)} width={cell} height={cell} rx="9" fill="none" stroke={`url(#${k}-grad)`} stroke-width="2.5" />
+            <text class="lbl" x={boardEnd + 26} y="120">ARTICULATION POINT</text>
+            <text class="mono" x={boardEnd + 26} y="146">→ win detection</text>
+            <text class="lbl sm" x={boardEnd + 26} y="186">TARJAN</text>
+            <text class="mono" x={boardEnd + 26} y="208">O(V + E)</text>
+          </g>
+          <g class="ov on-1">
+            <text class="lbl" x={boardEnd + 26} y="104">A* SEARCH</text>
+            <text class="mono" x={boardEnd + 26} y="132">f = g + h</text>
+            <text class="mono" x={boardEnd + 26} y="166">h admissible ✓</text>
+            <text class="mono" x={boardEnd + 26} y="188">h consistent ✓</text>
+          </g>
+          <g class="ov on-2">
+            <line x1={(bx + boardEnd) / 2} y1={by - 6} x2={(bx + boardEnd) / 2} y2={by + 5 * cell + 4 * gap + 6} stroke="#5ee7ff" stroke-dasharray="4 5" />
+            <line x1={bx - 6} y1={cy(2)} x2={boardEnd + 6} y2={cy(2)} stroke="#5ee7ff" stroke-dasharray="4 5" />
+            <line x1={bx} y1={by} x2={boardEnd} y2={by + 5 * cell + 4 * gap} stroke="#ff6bb5" stroke-dasharray="4 5" opacity="0.7" />
+            <line x1={boardEnd} y1={by} x2={bx} y2={by + 5 * cell + 4 * gap} stroke="#ff6bb5" stroke-dasharray="4 5" opacity="0.7" />
+            <text class="lbl" x={boardEnd + 26} y="112">EXACT SOLVE</text>
+            <text class="mono" x={boardEnd + 26} y="140">negamax</text>
+            <text class="mono" x={boardEnd + 26} y="162">+ memoisation</text>
+            <text class="mono" x={boardEnd + 26} y="184">+ symmetry</text>
+          </g>
+          <g class="ov on-3">
+            <text class="lbl" x={boardEnd + 26} y="92">AGENTS</text>
+            {['minimax', 'alpha-beta', 'MCTS'].map((a, i) => (
+              <g>
+                <rect x={boardEnd + 26} y={104 + i * 40} width="120" height="30" rx="15" fill="#111213" stroke="rgba(255,255,255,0.14)" />
+                <text class="mono" x={boardEnd + 86} y={124 + i * 40} text-anchor="middle">{a}</text>
+              </g>
+            ))}
+            <text class="lbl sm" x={boardEnd + 26} y="242">VS EXACT SOLUTION</text>
+          </g>
+        </g>
+      )
+    }
+
+    {
+      k === 'serms' && (
+        <g>
+          <rect x="16" y="14" width="448" height="272" rx="14" fill="#0f1011" stroke="rgba(255,255,255,0.1)" />
+          <circle cx="34" cy="32" r="4" fill="#3a3c40" />
+          <circle cx="48" cy="32" r="4" fill="#3a3c40" />
+          <circle cx="62" cy="32" r="4" fill="#3a3c40" />
+          <text class="lbl sm" x="80" y="36">SERMS / RELEASE</text>
+          <line x1="16" y1="50" x2="464" y2="50" stroke="rgba(255,255,255,0.08)" />
+
+          <g class="b hl-1 hl-2">
+            <text class="lbl sm" x="34" y="76">USE-CASE MODULES</text>
+            {[0, 1, 2, 3, 4].map((i) => (
+              <g class={i === 1 || i === 0 ? 'own' : ''}>
+                <rect x="34" y={88 + i * 36} width="168" height="28" rx="7" fill="#16171a" stroke="rgba(255,255,255,0.08)" />
+                <circle cx="50" cy={102 + i * 36} r="4" fill={['#5ee7ff', '#b36bff', '#6c8cff', '#ff6bb5', '#ffb36b'][i]} />
+                <rect x="62" y={98 + i * 36} width={[96, 108, 72, 88, 64][i]} height="8" rx="4" fill="rgba(255,255,255,0.12)" />
+              </g>
+            ))}
+            <path d="M202 102 H220 M202 138 H220 M202 174 H220 M202 210 H220 M202 246 H220 M220 102 V246" stroke="rgba(108,140,255,0.6)" stroke-width="1.5" fill="none" />
+            <path class="flow" d="M220 174 H246" stroke="#6c8cff" stroke-width="1.5" />
+          </g>
+          <g class="b hl-2">
+            <text class="lbl sm" x="258" y="76">PIPELINE</text>
+            {stages.map((s, i) => (
+              <g class="stage" style={`--i:${i}`}>
+                <circle cx="268" cy={98 + i * 26} r="7" fill="#16171a" stroke="rgba(255,255,255,0.18)" />
+                <path class="tick" d={`M264.5 ${98 + i * 26} l2.5 2.5 l4.5 -5`} stroke="#5ee7ff" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+                <text class="mono" x="284" y={102 + i * 26}>{s}</text>
+              </g>
+            ))}
+            <line x1="268" y1="105" x2="268" y2={91 + 6 * 26} stroke="rgba(255,255,255,0.08)" />
+          </g>
+          <g class="ov on-0">
+            {[0, 1, 2, 3, 4].map((i) => (
+              <circle cx={140 + i * 14} cy="72" r="8" fill={['#5ee7ff', '#6c8cff', '#b36bff', '#ff6bb5', '#ffb36b'][i]} stroke="#0f1011" stroke-width="2" />
+            ))}
+          </g>
+          <g class="ov on-1">
+            <rect x="34" y="124" width="168" height="28" rx="7" fill="none" stroke={`url(#${k}-grad)`} stroke-width="1.6" />
+            <text class="mono xs" x="62" y="142" fill="#f7f8f8">fault &amp; maintenance</text>
+            <text class="mono xs" x="62" y="106" fill="#d0d6e0">search &amp; reservation</text>
+            {['design', 'REST API', 'migration', 'React UI'].map((s, i) => (
+              <g>
+                <rect x={258 + (i % 2) * 100} y={110 + Math.floor(i / 2) * 40} width="92" height="28" rx="14" fill="#111213" stroke="rgba(255,255,255,0.14)" />
+                <text class="mono xs" x={304 + (i % 2) * 100} y={128 + Math.floor(i / 2) * 40} text-anchor="middle" fill="#d0d6e0">{s}</text>
+              </g>
+            ))}
+            <text class="lbl sm" x="258" y="216">END TO END</text>
+          </g>
+        </g>
+      )
+    }
+  </svg>
+</div>
+
+<style>
+  .pv {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 8 / 5;
+  }
+
+  .pv svg {
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+  }
+
+  .lbl {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    fill: var(--muted);
+  }
+
+  .lbl.sm {
+    font-size: 9px;
+  }
+
+  .mono {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    fill: var(--text-2);
+  }
+
+  .mono.xs {
+    font-size: 10px;
+  }
+
+  .num {
+    font-family: var(--font-mono);
+    font-size: 16px;
+    font-weight: 600;
+    fill: var(--text);
+  }
+
+  .val {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    font-weight: 600;
+    fill: var(--text);
+  }
+
+  /* Step logic: overlays show on their step; base groups dim unless highlighted for the step */
+  .b,
+  .ov {
+    transition: opacity 0.5s var(--ease);
+  }
+
+  .ov {
+    opacity: 0;
+  }
+
+  .pv[data-step='0'] .on-0,
+  .pv[data-step='1'] .on-1,
+  .pv[data-step='2'] .on-2,
+  .pv[data-step='3'] .on-3,
+  .pv[data-step='4'] .on-4 {
+    opacity: 1;
+  }
+
+  .pv[data-step='1'] .b:not(.hl-1),
+  .pv[data-step='2'] .b:not(.hl-2),
+  .pv[data-step='3'] .b:not(.hl-3),
+  .pv[data-step='4'] .b:not(.hl-4) {
+    opacity: 0.18;
+  }
+
+  /* SERMS: pipeline ticks light up on the delivery step */
+  .tick {
+    opacity: 0;
+  }
+
+  .pv[data-step='2'] .tick {
+    animation: tick 0.4s var(--ease) forwards;
+    animation-delay: calc(var(--i) * 0.12s);
+  }
+
+  @keyframes tick {
+    to {
+      opacity: 1;
+    }
+  }
+
+  /* Ambient motion */
+  .bar {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: wave 1.4s ease-in-out infinite alternate;
+  }
+
+  @keyframes wave {
+    from {
+      transform: scaleY(0.55);
+    }
+    to {
+      transform: scaleY(1);
+    }
+  }
+
+  .lips {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: speak 1.8s ease-in-out infinite;
+  }
+
+  @keyframes speak {
+    0%,
+    100% {
+      transform: scaleY(1);
+    }
+    50% {
+      transform: scaleY(1.22);
+    }
+  }
+
+  .pulse {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: pulse 2.4s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%,
+    100% {
+      transform: scale(0.85);
+    }
+    50% {
+      transform: scale(1.15);
+    }
+  }
+
+  .flow {
+    stroke-dasharray: 5 6;
+    animation: flow 1.2s linear infinite;
+  }
+
+  @keyframes flow {
+    to {
+      stroke-dashoffset: -22;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .bar,
+    .lips,
+    .pulse,
+    .flow {
+      animation: none;
+    }
+  }
+</style>

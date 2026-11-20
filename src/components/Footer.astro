@@ -1,0 +1,66 @@
+---
+import { t, type Lang } from '../i18n/ui';
+import { cv } from '../data/cv';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const copy = t(lang);
+const profile = cv[lang];
+const year = new Date().getFullYear();
+---
+
+<footer class="footer">
+  <div class="container footer-inner">
+    <p>© {year} {profile.name}</p>
+    <p class="links">
+      <a href={`mailto:${profile.email}`}>{profile.email}</a>
+      <span aria-hidden="true">·</span>
+      <a href={profile.github} rel="me">{profile.githubLabel}</a>
+    </p>
+    <p class="built">{copy.footer.built}</p>
+  </div>
+</footer>
+
+<style>
+  .footer {
+    border-top: 1px solid var(--line);
+    padding-block: 32px 40px;
+    font-size: 13px;
+    color: var(--faint);
+  }
+
+  .footer-inner {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 24px;
+  }
+
+  .links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .links a {
+    color: var(--muted);
+  }
+
+  .links a:hover {
+    color: var(--text);
+  }
+
+  .built {
+    margin-left: auto;
+  }
+
+  @media (max-width: 720px) {
+    .built {
+      margin-left: 0;
+      width: 100%;
+    }
+  }
+</style>
