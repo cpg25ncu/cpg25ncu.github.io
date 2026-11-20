@@ -5,7 +5,7 @@ order: 6
 featured: false
 kicker: 全栈系统
 tagline: 面向高校宿舍运营的 Web 应用：不超额的床位分配、调换宿舍，以及保留完整修改记录的缺勤管理。
-period: "2026.11"
+period: "2024.12"
 stack: [Java 17, Spring Boot, Spring Security, MySQL, Flyway, Docker, Playwright]
 cover:
   src: /media/dorm/overview.png

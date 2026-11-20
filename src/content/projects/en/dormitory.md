@@ -5,7 +5,7 @@ order: 6
 featured: false
 kicker: Full-stack systems
 tagline: A web application for university residence operations — room allocation without overbooking, transfers, and absence tracking with a full audit history.
-period: Nov 2026
+period: Dec 2024
 stack: [Java 17, Spring Boot, Spring Security, MySQL, Flyway, Docker, Playwright]
 cover:
   src: /media/dorm/overview.png
