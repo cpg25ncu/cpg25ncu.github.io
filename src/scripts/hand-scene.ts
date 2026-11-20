@@ -235,18 +235,21 @@ export function mountHandScene(stage: HTMLElement) {
   setLabel(POSES[0].name);
 
   function frame(now: number) {
-    const t = (now - start) / 1000;
+    // A frame's timestamp can precede `start` (taken mid-frame), so clamp to keep the pose index valid.
+    const t = Math.max(0, (now - start) / 1000);
     const cycle = HOLD + MORPH;
     const n = Math.floor(t / cycle);
     const local = t - n * cycle;
-    const from = POSES[n % POSES.length];
-    const to = POSES[(n + 1) % POSES.length];
+    const fromIndex = n % POSES.length;
+    const toIndex = (n + 1) % POSES.length;
+    const from = POSES[fromIndex];
+    const to = POSES[toIndex];
     const m = local < HOLD ? 0 : ease((local - HOLD) / MORPH);
-    if (m > 0.5 && poseIndex !== (n + 1) % POSES.length) {
-      poseIndex = (n + 1) % POSES.length;
+    if (m > 0.5 && poseIndex !== toIndex) {
+      poseIndex = toIndex;
       setLabel(to.name);
-    } else if (m <= 0.5 && poseIndex !== n % POSES.length) {
-      poseIndex = n % POSES.length;
+    } else if (m <= 0.5 && poseIndex !== fromIndex) {
+      poseIndex = fromIndex;
       setLabel(from.name);
     }
     const breathe = Math.sin(t * 1.7) * 0.04;

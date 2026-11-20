@@ -2,7 +2,7 @@
 // Illustrative SVG diagrams for each project, used until real screenshots / recordings are added.
 // `step` selects which overlay is shown; the project page changes it while you scroll the chapters.
 interface Props {
-  kind: 'avsr' | 'gesture' | 'hinger' | 'serms';
+  kind: 'avsr' | 'gesture' | 'hinger' | 'serms' | 'gateflow';
   step?: number;
   label: string;
 }
@@ -68,6 +68,11 @@ const boardEnd = bx + 5 * cell + 4 * gap;
 
 // ---------- SERMS ----------
 const stages = ['build', 'test', 'CodeQL', 'Trivy', 'gitleaks', 'coverage gate', 'deploy · HTTPS'];
+
+// ---------- FlowGate (team system; later steps highlight my parts) ----------
+const spark = [14, 18, 16, 24, 30, 28, 36, 42, 40, 48, 52, 50, 44, 46, 38, 34, 36, 30];
+const sparkPath = spark.map((v, i) => `${i === 0 ? 'M' : 'L'}${34 + i * 11} ${268 - v * 0.8}`).join(' ');
+const replicaPath = 'M34 262 H100 V254 H155 V246 H210 V254 H221';
 ---
 
 <div class="pv" data-kind={k} data-step={step} role="img" aria-label={label}>
@@ -248,6 +253,79 @@ const stages = ['build', 'test', 'CodeQL', 'Trivy', 'gitleaks', 'coverage gate',
               </g>
             ))}
             <text class="lbl sm" x={boardEnd + 26} y="242">VS EXACT SOLUTION</text>
+          </g>
+        </g>
+      )
+    }
+
+    {
+      k === 'gateflow' && (
+        <g>
+          <g class="b hl-4">
+            <rect x="18" y="104" width="112" height="52" rx="10" fill="#16171a" stroke="rgba(255,255,255,0.14)" />
+            <text class="lbl sm" x="30" y="124">CODING TOOL</text>
+            <text class="mono xs" x="30" y="143">OpenCode · Codex</text>
+          </g>
+          <g class="b">
+            <path class="flow" d="M130 130 H168" stroke="#5ee7ff" stroke-width="1.5" />
+            <path class="flow" d="M262 118 C 290 118, 290 58, 316 58" stroke="rgba(255,255,255,0.35)" stroke-width="1.5" fill="none" />
+            <path class="flow" d="M262 130 H316" stroke="#b36bff" stroke-width="1.5" />
+            <path class="flow" d="M262 142 C 290 142, 290 214, 316 214" stroke="#ff6bb5" stroke-width="1.5" fill="none" />
+          </g>
+          <g class="b hl-2 hl-3">
+            <rect x="168" y="100" width="94" height="60" rx="12" fill="#16171a" stroke={`url(#${k}-grad)`} stroke-width="1.4" />
+            <text class="lbl sm" x="215" y="124" text-anchor="middle">GATEWAY</text>
+            <text class="mono xs" x="215" y="143" text-anchor="middle">quota · route</text>
+          </g>
+          <g class="b">
+            <rect x="316" y="38" width="146" height="40" rx="10" fill="#16171a" stroke="rgba(255,255,255,0.14)" />
+            <text class="lbl sm" x="330" y="56">ACCESS</text>
+            <text class="mono xs" x="330" y="70">keys · prices</text>
+          </g>
+          <g class="b hl-1">
+            <rect x="316" y="110" width="146" height="40" rx="10" fill="#16171a" stroke="rgba(255,255,255,0.14)" />
+            <text class="lbl sm" x="330" y="128">METERING</text>
+            <text class="mono xs" x="330" y="142">reserve · settle</text>
+          </g>
+          <g class="b">
+            <rect x="316" y="194" width="146" height="40" rx="10" fill="#16171a" stroke="rgba(255,255,255,0.14)" />
+            <text class="lbl sm" x="330" y="212">MODEL CHANNEL</text>
+            <text class="mono xs" x="330" y="226">stream ↩</text>
+          </g>
+          <g class="b hl-2 hl-3">
+            <rect x="18" y="186" width="214" height="96" rx="10" fill="#111213" stroke="rgba(255,255,255,0.1)" />
+            <text class="lbl sm" x="30" y="204">PROMETHEUS → GRAFANA</text>
+            <path d={sparkPath} stroke="#6c8cff" stroke-width="1.6" fill="none" />
+            <path d={replicaPath} stroke="#ffb36b" stroke-width="1.4" fill="none" opacity="0.8" />
+          </g>
+
+          <g class="ov on-1">
+            <rect x="316" y="110" width="146" height="40" rx="10" fill="none" stroke={`url(#${k}-grad)`} stroke-width="2" />
+            <text class="mono xs" x="316" y="170" fill="#d0d6e0">1 · hold max cost</text>
+            <text class="mono xs" x="316" y="184" fill="#d0d6e0">2 · settle real cost → ledger</text>
+            <text class="lbl sm" x="18" y="34">HIGHLIGHTED · MY WORK</text>
+          </g>
+          <g class="ov on-2">
+            <rect x="18" y="186" width="214" height="96" rx="10" fill="none" stroke={`url(#${k}-grad)`} stroke-width="2" />
+            <path class="flow" d="M215 160 V186" stroke="#6c8cff" stroke-width="1.5" />
+            <text class="mono xs" x="242" y="206" fill="#d0d6e0">pkg/observability</text>
+            <text class="mono xs" x="242" y="222" fill="#8a8f98">metrics · logs · probe</text>
+            <text class="lbl sm" x="18" y="34">HIGHLIGHTED · MY WORK</text>
+          </g>
+          <g class="ov on-3">
+            <rect x="18" y="186" width="214" height="96" rx="10" fill="none" stroke={`url(#${k}-grad)`} stroke-width="2" />
+            <rect x="168" y="40" width="94" height="34" rx="17" fill="#111213" stroke={`url(#${k}-grad)`} stroke-width="1.4" />
+            <text class="mono xs" x="215" y="61" text-anchor="middle" fill="#f7f8f8">k6 load</text>
+            <path class="flow" d="M215 74 V100" stroke="#ffb36b" stroke-width="1.5" />
+            <text class="mono xs" x="242" y="206" fill="#d0d6e0">Grafana dashboard</text>
+            <text class="mono xs" x="242" y="222" fill="#8a8f98">via Helm</text>
+            <text class="lbl sm" x="18" y="34">HIGHLIGHTED · MY WORK</text>
+          </g>
+          <g class="ov on-4">
+            <rect x="18" y="104" width="112" height="52" rx="10" fill="none" stroke={`url(#${k}-grad)`} stroke-width="2" />
+            <text class="mono xs" x="18" y="74" fill="#d0d6e0">opencode.md</text>
+            <text class="mono xs" x="18" y="88" fill="#d0d6e0">codex.md · ollama</text>
+            <text class="lbl sm" x="18" y="34">HIGHLIGHTED · MY WORK</text>
           </g>
         </g>
       )

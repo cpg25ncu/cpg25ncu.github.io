@@ -13,8 +13,10 @@ interface Props {
 const { lang } = Astro.props;
 const copy = t(lang);
 const profile = cv[lang];
-const projects = await getProjects(lang);
-const cardStep: Record<string, number> = { avsr: 0, gesture: 1, hinger: 0, serms: 2 };
+const all = await getProjects(lang);
+const projects = all.filter((p) => p.data.featured);
+const more = all.filter((p) => !p.data.featured);
+const cardStep: Record<string, number> = { avsr: 0, gesture: 1, hinger: 0, serms: 2, gateflow: 0 };
 ---
 
 <Base lang={lang}>
@@ -71,7 +73,11 @@ const cardStep: Record<string, number> = { avsr: 0, gesture: 1, hinger: 0, serms
             >
               <a class="pcard card" href={localePath(`/projects/${p.slug}/`, lang)}>
                 <div class="pcard-visual">
-                  <ProjectVisual kind={p.data.visual} step={cardStep[p.data.visual] ?? 0} label={p.data.fullTitle} />
+                  {p.data.visual ? (
+                    <ProjectVisual kind={p.data.visual} step={cardStep[p.data.visual] ?? 0} label={p.data.fullTitle} />
+                  ) : (
+                    <img class="cover" src={p.data.cover!.src} alt={p.data.cover!.alt} loading="lazy" decoding="async" />
+                  )}
                 </div>
                 <div class="pcard-body">
                   <p class="kicker">
@@ -93,6 +99,42 @@ const cardStep: Record<string, number> = { avsr: 0, gesture: 1, hinger: 0, serms
           ))
         }
       </ul>
+
+      {
+        more.length > 0 && (
+          <div class="more-wrap">
+            <p class="kicker" data-reveal>
+              {copy.projects.moreKicker}
+            </p>
+            <h3 class="statement head small" data-reveal>
+              {copy.projects.moreLead} <span class="dim">{copy.projects.moreDim}</span>
+            </h3>
+            <ul class="mini-cards">
+              {more.map((p) => (
+                <li data-reveal>
+                  <a class="mcard card" href={localePath(`/projects/${p.slug}/`, lang)}>
+                    <div class="mcard-visual">
+                      {p.data.visual ? (
+                        <ProjectVisual kind={p.data.visual} step={cardStep[p.data.visual] ?? 0} label={p.data.fullTitle} />
+                      ) : (
+                        <img class="cover" src={p.data.cover!.src} alt={p.data.cover!.alt} loading="lazy" decoding="async" />
+                      )}
+                    </div>
+                    <div class="mcard-body">
+                      <p class="kicker">{p.data.kicker}</p>
+                      <h4 class="h-3">{p.data.title}</h4>
+                      <p class="pcard-tag">{p.data.tagline}</p>
+                      <span class="more">
+                        {copy.projects.readMore} <span aria-hidden="true">→</span>
+                      </span>
+                    </div>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )
+      }
     </div>
   </section>
 
@@ -334,6 +376,83 @@ const cardStep: Record<string, number> = { avsr: 0, gesture: 1, hinger: 0, serms
     letter-spacing: -0.025em;
   }
 
+  .cover {
+    width: 100%;
+    aspect-ratio: 8 / 5;
+    object-fit: cover;
+    border-radius: 10px;
+    border: 1px solid var(--line);
+  }
+
+  .card-item .pcard-visual:has(.cover) {
+    padding-bottom: 24px;
+  }
+
+  /* More projects */
+  .more-wrap {
+    margin-top: clamp(72px, 10vw, 120px);
+  }
+
+  .statement.head.small {
+    font-size: clamp(1.35rem, 2.4vw, 1.75rem);
+    margin-bottom: 36px;
+  }
+
+  .mini-cards {
+    list-style: none;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  }
+
+  .mcard {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
+    transition: border-color 0.3s var(--ease), background-color 0.3s var(--ease);
+  }
+
+  .mcard:hover {
+    border-color: var(--line-strong);
+    background: #131416;
+  }
+
+  .mcard:hover .more {
+    color: var(--blue);
+  }
+
+  .mcard-visual {
+    padding: 16px 16px 0;
+  }
+
+  .mcard-visual :global(.pv) {
+    border-radius: 10px;
+    border: 1px solid var(--line);
+    background: radial-gradient(120% 80% at 50% 0%, rgba(108, 140, 255, 0.08), transparent 60%);
+  }
+
+  .mcard-body {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 20px;
+    flex: 1;
+  }
+
+  .mcard-body .pcard-tag {
+    font-size: 14px;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .mcard-body .more {
+    margin-top: auto;
+    padding-top: 8px;
+  }
+
   /* Timeline */
   .timeline {
     list-style: none;
@@ -519,9 +638,16 @@ const cardStep: Record<string, number> = { avsr: 0, gesture: 1, hinger: 0, serms
     }
   }
 
+  @media (max-width: 900px) {
+    .mini-cards {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
   @media (max-width: 720px) {
     .cards,
-    .edu {
+    .edu,
+    .mini-cards {
       grid-template-columns: 1fr;
     }
 
