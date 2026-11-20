@@ -2,10 +2,10 @@
 import { defineConfig } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
 
-// GitHub Pages user site: the repo must be named cpg25ncu.github.io.
-// If a custom domain is added later, change `site` to it.
+// GitHub Pages user site (repo cpg25ncu.github.io) served on the custom domain tongyaoliu.com.
+// The domain is set in the repo's Settings → Pages; DNS lives in Cloudflare (DNS only, not proxied).
 export default defineConfig({
-  site: 'https://cpg25ncu.github.io',
+  site: 'https://tongyaoliu.com',
   trailingSlash: 'always',
   i18n: {
     locales: ['en', 'zh'],

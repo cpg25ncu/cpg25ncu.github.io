@@ -11,7 +11,7 @@ cover:
   src: /media/dorm/overview.png
   alt: 管理员总览：空余床位、各楼入住率与近期缺勤
 repo: https://github.com/cpg25ncu/dormitory-management-system
-demo: https://cpg25ncu.github.io/dormitory-management-system/
+demo: https://tongyaoliu.com/dormitory-management-system/
 metric:
   value: "90%"
   label: CI 中的行覆盖率门禁（分支覆盖率 70%），并通过 Testcontainers 在 MySQL 8.4 上运行集成测试。

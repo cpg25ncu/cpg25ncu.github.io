@@ -41,9 +41,14 @@ Project frontmatter is schema-checked (`src/content.config.ts`): a missing field
 
 1. Create a public GitHub repository named **`cpg25ncu.github.io`** and push this folder to its `main` branch.
 2. In the repository: **Settings → Pages → Build and deployment → Source: GitHub Actions**.
-3. Each push to `main` runs `.github/workflows/deploy.yml` and publishes to `https://cpg25ncu.github.io/`.
+3. Each push to `main` runs `.github/workflows/deploy.yml` and publishes to **https://tongyaoliu.com/**.
 
-For a custom domain later: change `site` in `astro.config.mjs`, add the domain under Settings → Pages, and keep WHOIS privacy on at the registrar.
+### Custom domain
+
+- `tongyaoliu.com` is registered at Cloudflare. DNS (Cloudflare, **DNS only**, not proxied): four `A` records to `185.199.108–111.153`, four `AAAA` records to `2606:50c0:8000–8003::153`, and `www` as a `CNAME` to `cpg25ncu.github.io`.
+- The domain is set under the repo's **Settings → Pages → Custom domain**, with **Enforce HTTPS** on. With the GitHub Actions source no `CNAME` file is needed.
+- `site` in `astro.config.mjs` must match the domain (canonical URLs, sitemap).
+- `cpg25ncu.github.io` and `www.tongyaoliu.com` redirect to `https://tongyaoliu.com/`. Other Pages sites under this account (e.g. `/dormitory-management-system/`) move to the domain too.
 
 ## Design notes
 

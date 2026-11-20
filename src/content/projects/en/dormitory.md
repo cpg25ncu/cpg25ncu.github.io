@@ -11,7 +11,7 @@ cover:
   src: /media/dorm/overview.png
   alt: Administrator overview with available beds, occupancy by building and recent absences
 repo: https://github.com/cpg25ncu/dormitory-management-system
-demo: https://cpg25ncu.github.io/dormitory-management-system/
+demo: https://tongyaoliu.com/dormitory-management-system/
 metric:
   value: "90%"
   label: Line-coverage gate in CI (70% for branches), with integration tests on MySQL 8.4 through Testcontainers.
