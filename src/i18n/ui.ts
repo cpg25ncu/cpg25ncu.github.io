@@ -22,7 +22,7 @@ export const ui = {
     siteTitle: 'Tongyao Liu',
     siteDescription:
       'Tongyao Liu — computer vision, multimodal learning and full-stack systems. Master of Technology in Software Engineering, National University of Singapore.',
-    nav: { projects: 'Projects', experience: 'Experience', cv: 'CV', menu: 'Menu', switchTo: 'Switch to Chinese' },
+    nav: { projects: 'Projects', experience: 'Experience', cv: 'CV', menu: 'Menu', switchTo: 'Switch to Chinese', appearance: 'Appearance', auto: 'Auto', light: 'Light', dark: 'Dark', explore: 'Explore', viewing: 'Viewing', allProjects: 'All projects', onThisPage: 'On this page', language: 'Language', close: 'Close', overview: 'Overview', tagline1: 'Computer vision · Multimodal learning', tagline2: 'MTech Software Engineering, NUS', fullCv: 'Full CV online', home: 'Home' },
     hero: {
       kicker: 'Singapore · NUS',
       name: 'Tongyao Liu',
@@ -116,7 +116,7 @@ export const ui = {
     siteTitle: '刘童尧',
     siteDescription:
       '刘童尧 — 计算机视觉、多模态学习与全栈系统。新加坡国立大学 软件工程技术硕士。',
-    nav: { projects: '项目', experience: '经历', cv: '简历', menu: '菜单', switchTo: 'Switch to English' },
+    nav: { projects: '项目', experience: '经历', cv: '简历', menu: '菜单', switchTo: 'Switch to English', appearance: '外观', auto: '自动', light: '浅色', dark: '深色', explore: '探索', viewing: '当前浏览', allProjects: '全部项目', onThisPage: '本页内容', language: '语言', close: '关闭', overview: '概览', tagline1: '计算机视觉 · 多模态学习', tagline2: '新加坡国立大学 软件工程技术硕士', fullCv: '完整简历网页版', home: '主页' },
     hero: {
       kicker: '新加坡 · 新加坡国立大学',
       name: '刘童尧',

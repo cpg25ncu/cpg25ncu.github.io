@@ -38,8 +38,8 @@ const bones: [number, number][] = [
   [9, 13], [13, 14], [14, 15], [15, 16], [13, 17], [0, 17], [17, 18], [18, 19], [19, 20],
 ];
 const tips = new Set([4, 8, 12, 16, 20]);
-const fingerColor = (i: number) => (tips.has(i) ? '#2997ff' : '#f5f5f7');
-const boneColor = (_: [number, number]) => '#6e6e73';
+const fingerColor = (i: number) => (tips.has(i) ? 'var(--pv-accent)' : 'var(--pv-ink)');
+const boneColor = (_: [number, number]) => 'var(--pv-dim)';
 
 // ---------- Hinger ----------
 const board = [
@@ -78,15 +78,15 @@ const replicaPath = 'M34 262 H100 V254 H155 V246 H210 V254 H221';
   <svg viewBox="0 0 480 300" preserveAspectRatio="xMidYMid meet">
     <defs>
       <pattern id={`${k}-dots`} width="16" height="16" patternUnits="userSpaceOnUse">
-        <circle cx="1" cy="1" r="1" fill="rgba(255,255,255,0.06)"></circle>
+        <circle cx="1" cy="1" r="1" fill="rgba(var(--pv-line-rgb),0.06)"></circle>
       </pattern>
       <linearGradient id={`${k}-grad`} x1="0" y1="0" x2="1" y2="0">
-        <stop offset="0" stop-color="#2997ff"></stop>
-        <stop offset="1" stop-color="#2997ff"></stop>
+        <stop offset="0" stop-color="var(--pv-accent)"></stop>
+        <stop offset="1" stop-color="var(--pv-accent)"></stop>
       </linearGradient>
       <radialGradient id={`${k}-node`}>
-        <stop offset="0" stop-color="#2997ff" stop-opacity="0.45"></stop>
-        <stop offset="1" stop-color="#2997ff" stop-opacity="0"></stop>
+        <stop offset="0" stop-color="var(--pv-accent)" stop-opacity="0.45"></stop>
+        <stop offset="1" stop-color="var(--pv-accent)" stop-opacity="0"></stop>
       </radialGradient>
     </defs>
 
@@ -96,41 +96,41 @@ const replicaPath = 'M34 262 H100 V254 H155 V246 H210 V254 H221';
           <g class="b hl-1">
             <text class="lbl" x="40" y="38">AUDIO · MFCC</text>
             {wave.map((h, i) => (
-              <rect class="bar" x={40 + i * 5.8} y={95 - h * 34} width="3" height={h * 68} rx="1.5" fill="#d2d2d7" style={`animation-delay:${(i % 7) * -0.17}s`} />
+              <rect class="bar" x={40 + i * 5.8} y={95 - h * 34} width="3" height={h * 68} rx="1.5" fill="var(--pv-ink-2)" style={`animation-delay:${(i % 7) * -0.17}s`} />
             ))}
             {mfcc.map((row, r) =>
-              row.map((v, c) => <rect x={40 + c * 17.5} y={142 + r * 9} width="15" height="7" rx="1.5" fill="#2997ff" opacity={v * 0.8} />),
+              row.map((v, c) => <rect x={40 + c * 17.5} y={142 + r * 9} width="15" height="7" rx="1.5" fill="var(--pv-accent)" opacity={v * 0.8} />),
             )}
           </g>
           <g class="b hl-2">
             <text class="lbl" x="290" y="38">VIDEO · LIP LANDMARKS</text>
             <g class="lips">
-              <polygon points={lipOuter.map((p) => p.join(',')).join(' ')} fill="none" stroke="rgba(245,245,247,0.5)" stroke-width="1.2" />
-              <polygon points={lipInner.map((p) => p.join(',')).join(' ')} fill="none" stroke="rgba(161,161,166,0.5)" stroke-width="1.2" />
-              {lipOuter.map(([x, y]) => <circle cx={x} cy={y} r="2.6" fill="#a1a1a6" />)}
-              {lipInner.map(([x, y]) => <circle cx={x} cy={y} r="2.2" fill="#6e6e73" />)}
+              <polygon points={lipOuter.map((p) => p.join(',')).join(' ')} fill="none" stroke="rgba(var(--pv-ink-rgb),0.5)" stroke-width="1.2" />
+              <polygon points={lipInner.map((p) => p.join(',')).join(' ')} fill="none" stroke="rgba(var(--pv-mid-rgb),0.5)" stroke-width="1.2" />
+              {lipOuter.map(([x, y]) => <circle cx={x} cy={y} r="2.6" fill="var(--pv-mid)" />)}
+              {lipInner.map(([x, y]) => <circle cx={x} cy={y} r="2.2" fill="var(--pv-dim)" />)}
             </g>
             <text class="lbl sm" x="310" y="150">2D-DCT</text>
-            {dct.map((row, r) => row.map((v, c) => <rect x={310 + c * 10} y={158 + r * 10} width="8" height="8" rx="1.5" fill="#a1a1a6" opacity={v} />))}
+            {dct.map((row, r) => row.map((v, c) => <rect x={310 + c * 10} y={158 + r * 10} width="8" height="8" rx="1.5" fill="var(--pv-mid)" opacity={v} />))}
             <text class="lbl sm" x="372" y="150">LIP SHAPE</text>
-            <path d="M372 182 q 14 -16 28 0 q 14 16 28 0" fill="none" stroke="#6e6e73" stroke-width="1.5" opacity="0.8" />
+            <path d="M372 182 q 14 -16 28 0 q 14 16 28 0" fill="none" stroke="var(--pv-dim)" stroke-width="1.5" opacity="0.8" />
           </g>
           <g class="b hl-3">
-            <path class="flow" d="M118 182 C 130 230, 190 232, 222 236" fill="none" stroke="#2997ff" stroke-width="1.5" />
-            <path class="flow" d="M370 202 C 360 236, 290 236, 258 236" fill="none" stroke="#a1a1a6" stroke-width="1.5" />
+            <path class="flow" d="M118 182 C 130 230, 190 232, 222 236" fill="none" stroke="var(--pv-accent)" stroke-width="1.5" />
+            <path class="flow" d="M370 202 C 360 236, 290 236, 258 236" fill="none" stroke="var(--pv-mid)" stroke-width="1.5" />
             <circle class="pulse" cx="240" cy="236" r="26" fill={`url(#${k}-node)`} opacity="0.55" />
-            <circle cx="240" cy="236" r="9" fill="#f5f5f7" />
+            <circle cx="240" cy="236" r="9" fill="var(--pv-ink)" />
             <text class="lbl" x="240" y="284" text-anchor="middle">EARLY · LATE · ADAPTIVE FUSION</text>
           </g>
           <g class="ov on-4">
-            <rect x="36" y="36" width="408" height="228" rx="14" fill="#1d1d1f" stroke="rgba(255,255,255,0.1)" />
+            <rect x="36" y="36" width="408" height="228" rx="14" fill="var(--pv-panel-2)" stroke="rgba(var(--pv-line-rgb),0.1)" />
             <text class="lbl" x="60" y="72">AUDIO ACCURACY AT 0 dB</text>
             <text class="lbl sm" x="60" y="112">BEFORE</text>
-            <rect x="60" y="120" width="360" height="18" rx="9" fill="rgba(255,255,255,0.05)" />
-            <rect class="grow" x="60" y="120" width={360 * 0.305} height="18" rx="9" fill="#6e6e73" />
+            <rect x="60" y="120" width="360" height="18" rx="9" fill="rgba(var(--pv-line-rgb),0.05)" />
+            <rect class="grow" x="60" y="120" width={360 * 0.305} height="18" rx="9" fill="var(--pv-dim)" />
             <text class="val" x={60 + 360 * 0.305 + 10} y="134">30.5%</text>
             <text class="lbl sm" x="60" y="178">MULTI-CONDITION TRAINING</text>
-            <rect x="60" y="186" width="360" height="18" rx="9" fill="rgba(255,255,255,0.05)" />
+            <rect x="60" y="186" width="360" height="18" rx="9" fill="rgba(var(--pv-line-rgb),0.05)" />
             <rect class="grow" x="60" y="186" width={360 * 0.777} height="18" rx="9" fill={`url(#${k}-grad)`} />
             <text class="val" x={60 + 360 * 0.777 + 10} y="200">77.7%</text>
           </g>
@@ -142,8 +142,8 @@ const replicaPath = 'M34 262 H100 V254 H155 V246 H210 V254 H221';
       k === 'gesture' && (
         <g>
           <g class="b hl-1 hl-2 hl-3">
-            <path d="M92 24 h16 M92 24 v16 M308 24 h-16 M308 24 v16 M92 296 h16 M92 296 v-16 M308 296 h-16 M308 296 v-16" stroke="rgba(41,151,255,0.75)" stroke-width="1.5" fill="none" />
-            <text class="lbl" x="98" y="18" fill="#f5f5f7">HAND</text>
+            <path d="M92 24 h16 M92 24 v16 M308 24 h-16 M308 24 v16 M92 296 h16 M92 296 v-16 M308 296 h-16 M308 296 v-16" stroke="rgba(var(--pv-accent-rgb),0.75)" stroke-width="1.5" fill="none" />
+            <text class="lbl" x="98" y="18" fill="var(--pv-ink)">HAND</text>
             {bones.map(([a, b]) => (
               <line x1={hand[a][0]} y1={hand[a][1]} x2={hand[b][0]} y2={hand[b][1]} stroke={boneColor([a, b])} stroke-width="2" stroke-linecap="round" opacity="0.8" />
             ))}
@@ -155,8 +155,8 @@ const replicaPath = 'M34 262 H100 V254 H155 V246 H210 V254 H221';
             ))}
           </g>
           <g class="ov on-1">
-            <line x1="200" y1="280" x2="250" y2="280" stroke="#6e6e73" stroke-dasharray="3 3" />
-            <line x1="200" y1="280" x2="200" y2="230" stroke="#6e6e73" stroke-dasharray="3 3" />
+            <line x1="200" y1="280" x2="250" y2="280" stroke="var(--pv-dim)" stroke-dasharray="3 3" />
+            <line x1="200" y1="280" x2="200" y2="230" stroke="var(--pv-dim)" stroke-dasharray="3 3" />
             <text class="lbl" x="330" y="96">21 LANDMARKS</text>
             <text class="mono" x="330" y="124">(x, y) × 21</text>
             <text class="lbl sm" x="330" y="160">NORMALISE</text>
@@ -165,21 +165,21 @@ const replicaPath = 'M34 262 H100 V254 H155 V246 H210 V254 H221';
           </g>
           <g class="ov on-2">
             <text class="lbl" x="330" y="86">CLASSIFIERS</text>
-            <rect x="330" y="100" width="128" height="34" rx="17" fill="#1d1d1f" stroke="rgba(255,255,255,0.14)" />
+            <rect x="330" y="100" width="128" height="34" rx="17" fill="var(--pv-panel-2)" stroke="rgba(var(--pv-line-rgb),0.14)" />
             <text class="mono" x="394" y="122" text-anchor="middle">Logistic Reg.</text>
-            <rect x="330" y="144" width="128" height="34" rx="17" fill="#1d1d1f" stroke="rgba(255,255,255,0.14)" />
+            <rect x="330" y="144" width="128" height="34" rx="17" fill="var(--pv-panel-2)" stroke="rgba(var(--pv-line-rgb),0.14)" />
             <text class="mono" x="394" y="166" text-anchor="middle">Decision Tree</text>
-            <rect x="330" y="188" width="128" height="34" rx="17" fill="#1d1d1f" stroke={`url(#${k}-grad)`} stroke-width="1.5" />
+            <rect x="330" y="188" width="128" height="34" rx="17" fill="var(--pv-panel-2)" stroke={`url(#${k}-grad)`} stroke-width="1.5" />
             <text class="mono" x="394" y="210" text-anchor="middle">kNN · scratch</text>
           </g>
           <g class="ov on-3">
             <text class="lbl" x="330" y="70">ADAPTIVE γ</text>
-            <rect x="330" y="80" width="120" height="80" rx="8" fill="#1d1d1f" stroke="rgba(255,255,255,0.1)" />
-            <path d="M338 152 L442 88" stroke="#6e6e73" stroke-dasharray="3 3" />
-            <path d="M338 152 C 352 108, 384 94, 442 88" stroke="#f5f5f7" stroke-width="1.8" fill="none" />
+            <rect x="330" y="80" width="120" height="80" rx="8" fill="var(--pv-panel-2)" stroke="rgba(var(--pv-line-rgb),0.1)" />
+            <path d="M338 152 L442 88" stroke="var(--pv-dim)" stroke-dasharray="3 3" />
+            <path d="M338 152 C 352 108, 384 94, 442 88" stroke="var(--pv-ink)" stroke-width="1.8" fill="none" />
             <text class="lbl" x="330" y="190">MEDIAN FILTER</text>
-            <path d="M330 220 l8 -10 l8 14 l8 -18 l8 16 l8 -12 l8 10 l8 -14 l8 12 l8 -8 l8 6 l8 -10 l8 8 l8 -4 l8 2" stroke="#6e6e73" fill="none" />
-            <path d="M330 216 C 360 210, 390 214, 450 212" stroke="#a1a1a6" stroke-width="1.8" fill="none" />
+            <path d="M330 220 l8 -10 l8 14 l8 -18 l8 16 l8 -12 l8 10 l8 -14 l8 12 l8 -8 l8 6 l8 -10 l8 8 l8 -4 l8 2" stroke="var(--pv-dim)" fill="none" />
+            <path d="M330 216 C 360 210, 390 214, 450 212" stroke="var(--pv-mid)" stroke-width="1.8" fill="none" />
           </g>
         </g>
       )
@@ -198,8 +198,8 @@ const replicaPath = 'M34 262 H100 V254 H155 V246 H210 V254 H221';
                     width={cell}
                     height={cell}
                     rx="9"
-                    fill={v ? '#2a2a2d' : 'rgba(255,255,255,0.015)'}
-                    stroke={v ? 'rgba(255,255,255,0.14)' : 'rgba(255,255,255,0.05)'}
+                    fill={v ? 'var(--pv-panel)' : 'rgba(var(--pv-line-rgb),0.015)'}
+                    stroke={v ? 'rgba(var(--pv-line-rgb),0.14)' : 'rgba(var(--pv-line-rgb),0.05)'}
                     stroke-dasharray={v ? undefined : '3 4'}
                   />
                   {v > 0 && (
@@ -213,9 +213,9 @@ const replicaPath = 'M34 262 H100 V254 H155 V246 H210 V254 H221';
           </g>
           <g class="ov on-0">
             {edges.map(([r1, c1, r2, c2]) => (
-              <line x1={cx(c1)} y1={cy(r1)} x2={cx(c2)} y2={cy(r2)} stroke="rgba(41,151,255,0.5)" stroke-width="2" />
+              <line x1={cx(c1)} y1={cy(r1)} x2={cx(c2)} y2={cy(r2)} stroke="rgba(var(--pv-accent-rgb),0.5)" stroke-width="2" />
             ))}
-            <circle class="pulse" cx={cx(2)} cy={cy(2)} r="30" fill="#2997ff" opacity="0.2" />
+            <circle class="pulse" cx={cx(2)} cy={cy(2)} r="30" fill="var(--pv-accent)" opacity="0.2" />
             <rect x={bx + 2 * (cell + gap)} y={by + 2 * (cell + gap)} width={cell} height={cell} rx="9" fill="none" stroke={`url(#${k}-grad)`} stroke-width="2.5" />
             <text class="lbl" x={boardEnd + 26} y="120">ARTICULATION POINT</text>
             <text class="mono" x={boardEnd + 26} y="146">→ win detection</text>
@@ -229,10 +229,10 @@ const replicaPath = 'M34 262 H100 V254 H155 V246 H210 V254 H221';
             <text class="mono" x={boardEnd + 26} y="188">h consistent ✓</text>
           </g>
           <g class="ov on-2">
-            <line x1={(bx + boardEnd) / 2} y1={by - 6} x2={(bx + boardEnd) / 2} y2={by + 5 * cell + 4 * gap + 6} stroke="#f5f5f7" stroke-dasharray="4 5" />
-            <line x1={bx - 6} y1={cy(2)} x2={boardEnd + 6} y2={cy(2)} stroke="#f5f5f7" stroke-dasharray="4 5" />
-            <line x1={bx} y1={by} x2={boardEnd} y2={by + 5 * cell + 4 * gap} stroke="#a1a1a6" stroke-dasharray="4 5" opacity="0.7" />
-            <line x1={boardEnd} y1={by} x2={bx} y2={by + 5 * cell + 4 * gap} stroke="#a1a1a6" stroke-dasharray="4 5" opacity="0.7" />
+            <line x1={(bx + boardEnd) / 2} y1={by - 6} x2={(bx + boardEnd) / 2} y2={by + 5 * cell + 4 * gap + 6} stroke="var(--pv-ink)" stroke-dasharray="4 5" />
+            <line x1={bx - 6} y1={cy(2)} x2={boardEnd + 6} y2={cy(2)} stroke="var(--pv-ink)" stroke-dasharray="4 5" />
+            <line x1={bx} y1={by} x2={boardEnd} y2={by + 5 * cell + 4 * gap} stroke="var(--pv-mid)" stroke-dasharray="4 5" opacity="0.7" />
+            <line x1={boardEnd} y1={by} x2={bx} y2={by + 5 * cell + 4 * gap} stroke="var(--pv-mid)" stroke-dasharray="4 5" opacity="0.7" />
             <text class="lbl" x={boardEnd + 26} y="112">EXACT SOLVE</text>
             <text class="mono" x={boardEnd + 26} y="140">negamax</text>
             <text class="mono" x={boardEnd + 26} y="162">+ memoisation</text>
@@ -242,7 +242,7 @@ const replicaPath = 'M34 262 H100 V254 H155 V246 H210 V254 H221';
             <text class="lbl" x={boardEnd + 26} y="92">AGENTS</text>
             {['minimax', 'alpha-beta', 'MCTS'].map((a, i) => (
               <g>
-                <rect x={boardEnd + 26} y={104 + i * 40} width="120" height="30" rx="15" fill="#1d1d1f" stroke="rgba(255,255,255,0.14)" />
+                <rect x={boardEnd + 26} y={104 + i * 40} width="120" height="30" rx="15" fill="var(--pv-panel-2)" stroke="rgba(var(--pv-line-rgb),0.14)" />
                 <text class="mono" x={boardEnd + 86} y={124 + i * 40} text-anchor="middle">{a}</text>
               </g>
             ))}
@@ -256,69 +256,69 @@ const replicaPath = 'M34 262 H100 V254 H155 V246 H210 V254 H221';
       k === 'gateflow' && (
         <g>
           <g class="b hl-4">
-            <rect x="18" y="104" width="112" height="52" rx="10" fill="#2a2a2d" stroke="rgba(255,255,255,0.14)" />
+            <rect x="18" y="104" width="112" height="52" rx="10" fill="var(--pv-panel)" stroke="rgba(var(--pv-line-rgb),0.14)" />
             <text class="lbl sm" x="30" y="124">CODING TOOL</text>
             <text class="mono xs" x="30" y="143">OpenCode · Codex</text>
           </g>
           <g class="b">
-            <path class="flow" d="M130 130 H168" stroke="#f5f5f7" stroke-width="1.5" />
-            <path class="flow" d="M262 118 C 290 118, 290 58, 316 58" stroke="rgba(255,255,255,0.35)" stroke-width="1.5" fill="none" />
-            <path class="flow" d="M262 130 H316" stroke="#2997ff" stroke-width="1.5" />
-            <path class="flow" d="M262 142 C 290 142, 290 214, 316 214" stroke="#a1a1a6" stroke-width="1.5" fill="none" />
+            <path class="flow" d="M130 130 H168" stroke="var(--pv-ink)" stroke-width="1.5" />
+            <path class="flow" d="M262 118 C 290 118, 290 58, 316 58" stroke="rgba(var(--pv-line-rgb),0.35)" stroke-width="1.5" fill="none" />
+            <path class="flow" d="M262 130 H316" stroke="var(--pv-accent)" stroke-width="1.5" />
+            <path class="flow" d="M262 142 C 290 142, 290 214, 316 214" stroke="var(--pv-mid)" stroke-width="1.5" fill="none" />
           </g>
           <g class="b hl-2 hl-3">
-            <rect x="168" y="100" width="94" height="60" rx="12" fill="#2a2a2d" stroke={`url(#${k}-grad)`} stroke-width="1.4" />
+            <rect x="168" y="100" width="94" height="60" rx="12" fill="var(--pv-panel)" stroke={`url(#${k}-grad)`} stroke-width="1.4" />
             <text class="lbl sm" x="215" y="124" text-anchor="middle">GATEWAY</text>
             <text class="mono xs" x="215" y="143" text-anchor="middle">quota · route</text>
           </g>
           <g class="b">
-            <rect x="316" y="38" width="146" height="40" rx="10" fill="#2a2a2d" stroke="rgba(255,255,255,0.14)" />
+            <rect x="316" y="38" width="146" height="40" rx="10" fill="var(--pv-panel)" stroke="rgba(var(--pv-line-rgb),0.14)" />
             <text class="lbl sm" x="330" y="56">ACCESS</text>
             <text class="mono xs" x="330" y="70">keys · prices</text>
           </g>
           <g class="b hl-1">
-            <rect x="316" y="110" width="146" height="40" rx="10" fill="#2a2a2d" stroke="rgba(255,255,255,0.14)" />
+            <rect x="316" y="110" width="146" height="40" rx="10" fill="var(--pv-panel)" stroke="rgba(var(--pv-line-rgb),0.14)" />
             <text class="lbl sm" x="330" y="128">METERING</text>
             <text class="mono xs" x="330" y="142">reserve · settle</text>
           </g>
           <g class="b">
-            <rect x="316" y="194" width="146" height="40" rx="10" fill="#2a2a2d" stroke="rgba(255,255,255,0.14)" />
+            <rect x="316" y="194" width="146" height="40" rx="10" fill="var(--pv-panel)" stroke="rgba(var(--pv-line-rgb),0.14)" />
             <text class="lbl sm" x="330" y="212">MODEL CHANNEL</text>
             <text class="mono xs" x="330" y="226">stream ↩</text>
           </g>
           <g class="b hl-2 hl-3">
-            <rect x="18" y="186" width="214" height="96" rx="10" fill="#1d1d1f" stroke="rgba(255,255,255,0.1)" />
+            <rect x="18" y="186" width="214" height="96" rx="10" fill="var(--pv-panel-2)" stroke="rgba(var(--pv-line-rgb),0.1)" />
             <text class="lbl sm" x="30" y="204">PROMETHEUS → GRAFANA</text>
-            <path d={sparkPath} stroke="#2997ff" stroke-width="1.6" fill="none" />
-            <path d={replicaPath} stroke="#6e6e73" stroke-width="1.4" fill="none" opacity="0.8" />
+            <path d={sparkPath} stroke="var(--pv-accent)" stroke-width="1.6" fill="none" />
+            <path d={replicaPath} stroke="var(--pv-dim)" stroke-width="1.4" fill="none" opacity="0.8" />
           </g>
 
           <g class="ov on-1">
             <rect x="316" y="110" width="146" height="40" rx="10" fill="none" stroke={`url(#${k}-grad)`} stroke-width="2" />
-            <text class="mono xs" x="316" y="170" fill="#d2d2d7">1 · hold max cost</text>
-            <text class="mono xs" x="316" y="184" fill="#d2d2d7">2 · settle real cost → ledger</text>
+            <text class="mono xs" x="316" y="170" fill="var(--pv-ink-2)">1 · hold max cost</text>
+            <text class="mono xs" x="316" y="184" fill="var(--pv-ink-2)">2 · settle real cost → ledger</text>
             <text class="lbl sm" x="18" y="34">HIGHLIGHTED · MY WORK</text>
           </g>
           <g class="ov on-2">
             <rect x="18" y="186" width="214" height="96" rx="10" fill="none" stroke={`url(#${k}-grad)`} stroke-width="2" />
-            <path class="flow" d="M215 160 V186" stroke="#2997ff" stroke-width="1.5" />
-            <text class="mono xs" x="242" y="206" fill="#d2d2d7">pkg/observability</text>
-            <text class="mono xs" x="242" y="222" fill="#8a8f98">metrics · logs · probe</text>
+            <path class="flow" d="M215 160 V186" stroke="var(--pv-accent)" stroke-width="1.5" />
+            <text class="mono xs" x="242" y="206" fill="var(--pv-ink-2)">pkg/observability</text>
+            <text class="mono xs" x="242" y="222" fill="var(--pv-mid)">metrics · logs · probe</text>
             <text class="lbl sm" x="18" y="34">HIGHLIGHTED · MY WORK</text>
           </g>
           <g class="ov on-3">
             <rect x="18" y="186" width="214" height="96" rx="10" fill="none" stroke={`url(#${k}-grad)`} stroke-width="2" />
-            <rect x="168" y="40" width="94" height="34" rx="17" fill="#1d1d1f" stroke={`url(#${k}-grad)`} stroke-width="1.4" />
-            <text class="mono xs" x="215" y="61" text-anchor="middle" fill="#f5f5f7">k6 load</text>
-            <path class="flow" d="M215 74 V100" stroke="#6e6e73" stroke-width="1.5" />
-            <text class="mono xs" x="242" y="206" fill="#d2d2d7">Grafana dashboard</text>
-            <text class="mono xs" x="242" y="222" fill="#8a8f98">via Helm</text>
+            <rect x="168" y="40" width="94" height="34" rx="17" fill="var(--pv-panel-2)" stroke={`url(#${k}-grad)`} stroke-width="1.4" />
+            <text class="mono xs" x="215" y="61" text-anchor="middle" fill="var(--pv-ink)">k6 load</text>
+            <path class="flow" d="M215 74 V100" stroke="var(--pv-dim)" stroke-width="1.5" />
+            <text class="mono xs" x="242" y="206" fill="var(--pv-ink-2)">Grafana dashboard</text>
+            <text class="mono xs" x="242" y="222" fill="var(--pv-mid)">via Helm</text>
             <text class="lbl sm" x="18" y="34">HIGHLIGHTED · MY WORK</text>
           </g>
           <g class="ov on-4">
             <rect x="18" y="104" width="112" height="52" rx="10" fill="none" stroke={`url(#${k}-grad)`} stroke-width="2" />
-            <text class="mono xs" x="18" y="74" fill="#d2d2d7">opencode.md</text>
-            <text class="mono xs" x="18" y="88" fill="#d2d2d7">codex.md · ollama</text>
+            <text class="mono xs" x="18" y="74" fill="var(--pv-ink-2)">opencode.md</text>
+            <text class="mono xs" x="18" y="88" fill="var(--pv-ink-2)">codex.md · ollama</text>
             <text class="lbl sm" x="18" y="34">HIGHLIGHTED · MY WORK</text>
           </g>
         </g>
@@ -328,49 +328,49 @@ const replicaPath = 'M34 262 H100 V254 H155 V246 H210 V254 H221';
     {
       k === 'serms' && (
         <g>
-          <rect x="16" y="14" width="448" height="272" rx="14" fill="#161617" stroke="rgba(255,255,255,0.1)" />
-          <circle cx="34" cy="32" r="4" fill="#48484a" />
-          <circle cx="48" cy="32" r="4" fill="#48484a" />
-          <circle cx="62" cy="32" r="4" fill="#48484a" />
+          <rect x="16" y="14" width="448" height="272" rx="14" fill="var(--pv-panel-3)" stroke="rgba(var(--pv-line-rgb),0.1)" />
+          <circle cx="34" cy="32" r="4" fill="var(--pv-dots)" />
+          <circle cx="48" cy="32" r="4" fill="var(--pv-dots)" />
+          <circle cx="62" cy="32" r="4" fill="var(--pv-dots)" />
           <text class="lbl sm" x="80" y="36">SERMS / RELEASE</text>
-          <line x1="16" y1="50" x2="464" y2="50" stroke="rgba(255,255,255,0.08)" />
+          <line x1="16" y1="50" x2="464" y2="50" stroke="rgba(var(--pv-line-rgb),0.08)" />
 
           <g class="b hl-1 hl-2">
             <text class="lbl sm" x="34" y="76">USE-CASE MODULES</text>
             {[0, 1, 2, 3, 4].map((i) => (
               <g class={i === 1 || i === 0 ? 'own' : ''}>
-                <rect x="34" y={88 + i * 36} width="168" height="28" rx="7" fill="#2a2a2d" stroke="rgba(255,255,255,0.08)" />
-                <circle cx="50" cy={102 + i * 36} r="4" fill={['#f5f5f7', '#2997ff', '#2997ff', '#a1a1a6', '#6e6e73'][i]} />
-                <rect x="62" y={98 + i * 36} width={[96, 108, 72, 88, 64][i]} height="8" rx="4" fill="rgba(255,255,255,0.12)" />
+                <rect x="34" y={88 + i * 36} width="168" height="28" rx="7" fill="var(--pv-panel)" stroke="rgba(var(--pv-line-rgb),0.08)" />
+                <circle cx="50" cy={102 + i * 36} r="4" fill={['var(--pv-ink)', 'var(--pv-accent)', 'var(--pv-accent)', 'var(--pv-mid)', 'var(--pv-dim)'][i]} />
+                <rect x="62" y={98 + i * 36} width={[96, 108, 72, 88, 64][i]} height="8" rx="4" fill="rgba(var(--pv-line-rgb),0.12)" />
               </g>
             ))}
-            <path d="M202 102 H220 M202 138 H220 M202 174 H220 M202 210 H220 M202 246 H220 M220 102 V246" stroke="rgba(41,151,255,0.55)" stroke-width="1.5" fill="none" />
-            <path class="flow" d="M220 174 H246" stroke="#2997ff" stroke-width="1.5" />
+            <path d="M202 102 H220 M202 138 H220 M202 174 H220 M202 210 H220 M202 246 H220 M220 102 V246" stroke="rgba(var(--pv-accent-rgb),0.55)" stroke-width="1.5" fill="none" />
+            <path class="flow" d="M220 174 H246" stroke="var(--pv-accent)" stroke-width="1.5" />
           </g>
           <g class="b hl-2">
             <text class="lbl sm" x="258" y="76">PIPELINE</text>
             {stages.map((s, i) => (
               <g class="stage" style={`--i:${i}`}>
-                <circle cx="268" cy={98 + i * 26} r="7" fill="#2a2a2d" stroke="rgba(255,255,255,0.18)" />
-                <path class="tick" d={`M264.5 ${98 + i * 26} l2.5 2.5 l4.5 -5`} stroke="#f5f5f7" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+                <circle cx="268" cy={98 + i * 26} r="7" fill="var(--pv-panel)" stroke="rgba(var(--pv-line-rgb),0.18)" />
+                <path class="tick" d={`M264.5 ${98 + i * 26} l2.5 2.5 l4.5 -5`} stroke="var(--pv-ink)" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round" />
                 <text class="mono" x="284" y={102 + i * 26}>{s}</text>
               </g>
             ))}
-            <line x1="268" y1="105" x2="268" y2={91 + 6 * 26} stroke="rgba(255,255,255,0.08)" />
+            <line x1="268" y1="105" x2="268" y2={91 + 6 * 26} stroke="rgba(var(--pv-line-rgb),0.08)" />
           </g>
           <g class="ov on-0">
             {[0, 1, 2, 3, 4].map((i) => (
-              <circle cx={140 + i * 14} cy="72" r="8" fill={['#f5f5f7', '#2997ff', '#2997ff', '#a1a1a6', '#6e6e73'][i]} stroke="#161617" stroke-width="2" />
+              <circle cx={140 + i * 14} cy="72" r="8" fill={['var(--pv-ink)', 'var(--pv-accent)', 'var(--pv-accent)', 'var(--pv-mid)', 'var(--pv-dim)'][i]} stroke="var(--pv-panel-3)" stroke-width="2" />
             ))}
           </g>
           <g class="ov on-1">
             <rect x="34" y="124" width="168" height="28" rx="7" fill="none" stroke={`url(#${k}-grad)`} stroke-width="1.6" />
-            <text class="mono xs" x="62" y="142" fill="#f5f5f7">fault &amp; maintenance</text>
-            <text class="mono xs" x="62" y="106" fill="#d2d2d7">search &amp; reservation</text>
+            <text class="mono xs" x="62" y="142" fill="var(--pv-ink)">fault &amp; maintenance</text>
+            <text class="mono xs" x="62" y="106" fill="var(--pv-ink-2)">search &amp; reservation</text>
             {['design', 'REST API', 'migration', 'React UI'].map((s, i) => (
               <g>
-                <rect x={258 + (i % 2) * 100} y={110 + Math.floor(i / 2) * 40} width="92" height="28" rx="14" fill="#1d1d1f" stroke="rgba(255,255,255,0.14)" />
-                <text class="mono xs" x={304 + (i % 2) * 100} y={128 + Math.floor(i / 2) * 40} text-anchor="middle" fill="#d2d2d7">{s}</text>
+                <rect x={258 + (i % 2) * 100} y={110 + Math.floor(i / 2) * 40} width="92" height="28" rx="14" fill="var(--pv-panel-2)" stroke="rgba(var(--pv-line-rgb),0.14)" />
+                <text class="mono xs" x={304 + (i % 2) * 100} y={128 + Math.floor(i / 2) * 40} text-anchor="middle" fill="var(--pv-ink-2)">{s}</text>
               </g>
             ))}
             <text class="lbl sm" x="258" y="216">END TO END</text>

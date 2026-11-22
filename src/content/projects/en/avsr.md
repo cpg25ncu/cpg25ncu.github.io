@@ -1,6 +1,7 @@
 ---
 title: Audio-Visual Speech Recognition
 fullTitle: Robust Audio-Visual Speech Recognition via Multimodal Feature Fusion
+short: AV Speech Recognition
 order: 1
 kicker: Multimodal learning
 tagline: An end-to-end system that combines acoustic and lip-motion features to stay accurate in noisy environments.

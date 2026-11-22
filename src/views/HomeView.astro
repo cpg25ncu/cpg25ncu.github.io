@@ -23,7 +23,7 @@ const cardStep: Record<string, number> = { avsr: 0, gesture: 1, hinger: 0, serms
   <Hero lang={lang} />
 
   <!-- About: eyebrow, one headline, then copy beside a spec-style list of interests -->
-  <section class="section about" aria-labelledby="about-title">
+  <section class="section about" id="about" data-section={copy.statement.eyebrow} aria-labelledby="about-title">
     <div class="container">
       <p class="eyebrow" data-reveal>{copy.statement.eyebrow}</p>
       <h2 id="about-title" class="h-1 about-head" data-reveal>{copy.statement.headline}</h2>
@@ -40,7 +40,7 @@ const cardStep: Record<string, number> = { avsr: 0, gesture: 1, hinger: 0, serms
   </section>
 
   <!-- Numbers, after Apple's spec blocks -->
-  <section class="section band" aria-labelledby="stats-title">
+  <section class="section band" id="numbers" data-section={copy.stats.kicker} aria-labelledby="stats-title">
     <div class="container">
       <h2 id="stats-title" class="eyebrow" data-reveal>{copy.stats.kicker}</h2>
       <ul class="stats">
@@ -59,7 +59,7 @@ const cardStep: Record<string, number> = { avsr: 0, gesture: 1, hinger: 0, serms
   </section>
 
   <!-- Projects -->
-  <section class="section" id="projects" aria-labelledby="projects-title">
+  <section class="section" id="projects" data-section={copy.nav.projects} aria-labelledby="projects-title">
     <div class="container">
       <h2 id="projects-title" class="statement head" data-reveal>
         {copy.projects.lead} <span class="dim">{copy.projects.dim}</span>
@@ -136,7 +136,7 @@ const cardStep: Record<string, number> = { avsr: 0, gesture: 1, hinger: 0, serms
   </section>
 
   <!-- Experience: Apple FAQ-style accordion -->
-  <section class="section band" aria-labelledby="exp-title">
+  <section class="section band" id="experience" data-section={copy.nav.experience} aria-labelledby="exp-title">
     <div class="container">
       <div class="acc-head">
         <h2 id="exp-title" class="statement head" data-reveal>
@@ -183,7 +183,7 @@ const cardStep: Record<string, number> = { avsr: 0, gesture: 1, hinger: 0, serms
   </section>
 
   <!-- Education -->
-  <section class="section" aria-labelledby="edu-title">
+  <section class="section" id="education" data-section={copy.education.kicker} aria-labelledby="edu-title">
     <div class="container">
       <h2 id="edu-title" class="eyebrow" data-reveal>{copy.education.kicker}</h2>
       <div class="edu">
@@ -210,7 +210,7 @@ const cardStep: Record<string, number> = { avsr: 0, gesture: 1, hinger: 0, serms
   </section>
 
   <!-- Contact -->
-  <section class="section contact" aria-labelledby="contact-title">
+  <section class="section contact" id="contact" data-section={copy.footer.contact} aria-labelledby="contact-title">
     <div class="container contact-inner">
       <h2 id="contact-title" class="h-1" data-reveal>{copy.contact.title}</h2>
       <p class="lead" data-reveal>{copy.contact.sub}</p>
@@ -342,7 +342,7 @@ const cardStep: Record<string, number> = { avsr: 0, gesture: 1, hinger: 0, serms
 
   .pcard:hover,
   .mcard:hover {
-    background: #232325;
+    background: var(--bg-card-hover);
     transform: scale(1.008);
   }
 

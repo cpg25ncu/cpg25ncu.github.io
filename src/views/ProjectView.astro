@@ -19,7 +19,7 @@ const d = project.data;
 <Base lang={lang} title={d.title} description={d.tagline}>
   <article>
     <!-- Hero -->
-    <header class="p-hero">
+    <header class="p-hero" id="overview" data-section={t(lang).nav.overview}>
       <div class="container p-hero-inner">
         <a class="back" href={`${localePath('/', lang)}#projects`}>‹ {copy.back}</a>
         <p class="eyebrow rise" style="--d:0">{d.kicker}</p>
@@ -86,7 +86,7 @@ const d = project.data;
         <ol class="chapters">
           {
             d.chapters.map((c, i) => (
-              <li class:list={['chapter', { 'is-active': i === 0 }]} data-chapter data-chapter-kicker={c.kicker}>
+              <li class:list={['chapter', { 'is-active': i === 0 }]} id={`ch-${i + 1}`} data-section={c.kicker} data-chapter data-chapter-kicker={c.kicker}>
                 <p class="kicker">
                   {String(i + 1).padStart(2, '0')} · {c.kicker}
                 </p>
@@ -100,7 +100,7 @@ const d = project.data;
     </section>
 
     <!-- Key result -->
-    <section class="section result">
+    <section class="section result" id="result" data-section={copy.keyResult}>
       <div class="container result-inner">
         <p class="kicker" data-reveal>{copy.keyResult}</p>
         <p class="result-value metal" data-count data-reveal>{d.metric.value}</p>

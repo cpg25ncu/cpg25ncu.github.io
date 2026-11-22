@@ -1,6 +1,7 @@
 ---
 title: Dormitory Management System
 fullTitle: Dormitory Management System
+short: Dormitory System
 order: 6
 featured: false
 kicker: Full-stack systems

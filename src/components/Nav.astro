@@ -1,55 +1,217 @@
 ---
-import { t, localePath, alternatePath, languages, type Lang } from '../i18n/ui';
+// Apple-style local nav: name on the left, two buttons on the right (Explore, CV).
+// Explore opens a sheet (native <dialog>) with the project row, the page header,
+// on-this-page links, a few blue links and the language / appearance controls.
+import ProjectVisual from './ProjectVisual.astro';
+import { t, localePath, alternatePath, type Lang } from '../i18n/ui';
 import { cv } from '../data/cv';
+import { getProjects } from '../lib/projects';
 
 interface Props {
   lang: Lang;
+  title?: string;
 }
 
-const { lang } = Astro.props;
+const { lang, title } = Astro.props;
 const copy = t(lang);
+const n = copy.nav;
 const profile = cv[lang];
-const other: Lang = lang === 'en' ? 'zh' : 'en';
 const path = Astro.url.pathname;
 const home = localePath('/', lang);
-const links = [
-  { href: `${home}#projects`, label: copy.nav.projects, active: path.includes('/projects/') },
-  { href: localePath('/experience/', lang), label: copy.nav.experience, active: path.includes('/experience/') },
-];
+const projects = await getProjects(lang);
+const currentSlug = path.match(/\/projects\/([^/]+)\//)?.[1];
+const isHome = path === home;
+const enHref = lang === 'en' ? path : alternatePath(path, lang);
+const zhHref = lang === 'zh' ? path : alternatePath(path, lang);
+const thumbStep: Record<string, number> = { avsr: 0, gesture: 1, hinger: 0, serms: 2, gateflow: 0 };
 ---
 
 <header class="nav-wrap">
   <div class="nav">
     <a class="brand" href={home}>{profile.name}</a>
-
-    <nav class="links" aria-label="Primary">
-      {
-        links.map((l) => (
-          <a href={l.href} class:list={[{ active: l.active }]} aria-current={l.active ? 'page' : undefined}>
-            {l.label}
-          </a>
-        ))
-      }
-    </nav>
-
     <div class="actions">
-      <a class="btn btn-sm btn-ghost" href={alternatePath(path, lang)} hreflang={languages[other].htmlLang} lang={languages[other].htmlLang} aria-label={copy.nav.switchTo}>
-        {languages[other].label}
-      </a>
-      <a class="btn btn-sm btn-primary" href={profile.cvFiles[lang]} download>{copy.nav.cv}</a>
-      <details class="menu">
-        <summary aria-label={copy.nav.menu}><span></span><span></span></summary>
-        <div class="menu-panel">
-          {links.map((l) => <a href={l.href}>{l.label}</a>)}
-          <a href={profile.github} rel="me">GitHub</a>
-        </div>
-      </details>
+      <button type="button" class="btn btn-sm btn-outline" data-explore-open aria-haspopup="dialog">{n.explore}</button>
+      <a class="btn btn-sm btn-primary" href={profile.cvFiles[lang]} download>{n.cv}</a>
     </div>
   </div>
 </header>
 
+<dialog class="sheet" data-explore aria-label={n.explore}>
+  <div class="sheet-inner">
+    <form method="dialog">
+      <button class="close round" aria-label={n.close}>
+        <svg viewBox="0 0 20 20" width="16" height="16" aria-hidden="true"><path d="M5 5l10 10M15 5 5 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" /></svg>
+      </button>
+    </form>
+
+    <!-- Project row -->
+    <div class="row-wrap">
+      <ul class="prow" data-prow>
+        {
+          projects.map((p) => (
+            <li>
+              <a class="pitem" href={localePath(`/projects/${p.slug}/`, lang)} aria-current={p.slug === currentSlug ? 'page' : undefined}>
+                <span class="pthumb">
+                  {p.data.visual ? (
+                    <ProjectVisual kind={p.data.visual} step={thumbStep[p.data.visual] ?? 0} label={p.data.title} />
+                  ) : (
+                    <img src={p.data.cover!.src} alt="" loading="lazy" decoding="async" />
+                  )}
+                </span>
+                <span class="ptitle">{p.data.short ?? p.data.title}</span>
+                {p.slug === currentSlug && <span class="pnote">{n.viewing}</span>}
+              </a>
+            </li>
+          ))
+        }
+        <li>
+          <a class="pitem" href={`${home}#projects`}>
+            <span class="pthumb all" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="26" height="26"><rect x="3" y="3" width="7.5" height="7.5" rx="2" /><rect x="13.5" y="3" width="7.5" height="7.5" rx="2" /><rect x="3" y="13.5" width="7.5" height="7.5" rx="2" /><rect x="13.5" y="13.5" width="7.5" height="7.5" rx="2" /></svg>
+            </span>
+            <span class="ptitle">{n.allProjects}</span>
+          </a>
+        </li>
+      </ul>
+      <button type="button" class="prow-next round" data-prow-next aria-label={n.allProjects}>
+        <svg viewBox="0 0 20 20" width="16" height="16" aria-hidden="true"><path d="M7.5 4.5 13 10l-5.5 5.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg>
+      </button>
+    </div>
+
+    <div class="rule"></div>
+
+    <!-- Page header -->
+    <div class="head">
+      <h2 class="head-title">{title ?? profile.name}</h2>
+      <div class="head-side">
+        <p class="head-meta">{n.tagline1}<br />{n.tagline2}</p>
+        <a class="btn btn-primary" href={profile.cvFiles[lang]} download>{copy.hero.ctaSecondary}</a>
+      </div>
+    </div>
+
+    <!-- On this page: filled from [data-section] elements when the sheet opens -->
+    <div class="otp-wrap" data-otp>
+      <p class="otp">{n.onThisPage}</p>
+      <ul class="sections" data-sections></ul>
+    </div>
+
+    <div class="links">
+      {!isHome && <a class="blue-link" href={home}>{n.home} ›</a>}
+      {!path.includes('/experience/') && <a class="blue-link" href={localePath('/experience/', lang)}>{n.fullCv} ›</a>}
+      <a class="blue-link" href={profile.github} rel="me">GitHub ›</a>
+    </div>
+
+    <div class="settings">
+      <div class="setting">
+        <span>{n.language}</span>
+        <div class="seg" role="group" aria-label={n.language}>
+          <a class:list={['seg-item', 'btn', { on: lang === 'en' }]} href={enHref} lang="en" hreflang="en" aria-current={lang === 'en' ? 'true' : undefined}>English</a>
+          <a class:list={['seg-item', 'btn', { on: lang === 'zh' }]} href={zhHref} lang="zh-CN" hreflang="zh-CN" aria-current={lang === 'zh' ? 'true' : undefined}>中文</a>
+        </div>
+      </div>
+      <div class="setting">
+        <span>{n.appearance}</span>
+        <div class="seg" role="radiogroup" aria-label={n.appearance}>
+          {
+            [
+              ['auto', n.auto],
+              ['light', n.light],
+              ['dark', n.dark],
+            ].map(([v, label]) => (
+              <button type="button" role="radio" class="seg-item btn" data-appearance-value={v} aria-checked={v === 'auto' ? 'true' : 'false'}>
+                {label}
+              </button>
+            ))
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+</dialog>
+
+<script>
+  import { getAppearance, initTheme, setAppearance, type Appearance } from '../scripts/theme';
+
+  initTheme();
+  const sheet = document.querySelector<HTMLDialogElement>('[data-explore]');
+  const openBtn = document.querySelector<HTMLButtonElement>('[data-explore-open]');
+  const otp = document.querySelector<HTMLElement>('[data-otp]');
+  const list = document.querySelector<HTMLUListElement>('[data-sections]');
+  const prow = document.querySelector<HTMLUListElement>('[data-prow]');
+  const prowNext = document.querySelector<HTMLButtonElement>('[data-prow-next]');
+  const appearanceBtns = Array.from(document.querySelectorAll<HTMLButtonElement>('[data-appearance-value]'));
+
+  // Every appearance control on the page (Explore sheet + footer) shares this state.
+  const markAppearance = () => {
+    const a = getAppearance();
+    appearanceBtns.forEach((b) => {
+      const on = b.dataset.appearanceValue === a;
+      b.classList.toggle('on', on);
+      b.setAttribute('aria-checked', String(on));
+    });
+  };
+  markAppearance();
+  document.addEventListener('themechange', markAppearance);
+
+  // Build "On this page" from the page's sections and highlight the one in view.
+  const buildSections = () => {
+    if (!list) return;
+    const secs = Array.from(document.querySelectorAll<HTMLElement>('[data-section][id]'));
+    const line = window.innerHeight * 0.4;
+    let active = 0;
+    secs.forEach((s, i) => {
+      if (s.getBoundingClientRect().top <= line) active = i;
+    });
+    list.replaceChildren(
+      ...secs.map((s, i) => {
+        const li = document.createElement('li');
+        const a = document.createElement('a');
+        a.href = `#${s.id}`;
+        a.textContent = s.dataset.section ?? '';
+        if (i === active) {
+          a.classList.add('on');
+          a.setAttribute('aria-current', 'location');
+        }
+        a.addEventListener('click', () => sheet?.close());
+        li.append(a);
+        return li;
+      }),
+    );
+    if (otp) otp.hidden = secs.length === 0;
+  };
+
+  const syncProwArrow = () => {
+    if (!prow || !prowNext) return;
+    prowNext.hidden = prow.scrollWidth - prow.clientWidth - prow.scrollLeft <= 4;
+  };
+
+  openBtn?.addEventListener('click', () => {
+    if (!sheet) return;
+    buildSections();
+    markAppearance();
+    sheet.showModal();
+    prow?.querySelector('[aria-current="page"]')?.scrollIntoView({ block: 'nearest', inline: 'center' });
+    syncProwArrow();
+  });
+
+  // a click on the dimmed backdrop closes the sheet
+  sheet?.addEventListener('click', (e) => {
+    if (e.target === sheet) sheet.close();
+  });
+
+  prowNext?.addEventListener('click', () => prow?.scrollBy({ left: prow.clientWidth * 0.8, behavior: 'smooth' }));
+  prow?.addEventListener('scroll', syncProwArrow, { passive: true });
+
+  appearanceBtns.forEach((b) =>
+    b.addEventListener('click', () => {
+      setAppearance(b.dataset.appearanceValue as Appearance);
+      markAppearance();
+    }),
+  );
+</script>
+
 <style>
-  /* Floating pill, after Apple's product-page local nav (1024 × 52, radius 18, 80% black + 20px blur) */
+  /* ---------- Bar: Apple local nav (1024 × 52, radius 18, translucent + 20px blur) ---------- */
   .nav-wrap {
     position: sticky;
     top: 0;
@@ -65,13 +227,15 @@ const links = [
     margin-inline: auto;
     display: flex;
     align-items: center;
-    gap: 24px;
+    gap: 16px;
     padding: 0 12px 0 22px;
     border-radius: var(--r-nav);
-    background: rgba(18, 18, 18, 0.8);
+    background: var(--nav-bg);
     backdrop-filter: saturate(180%) blur(20px);
     -webkit-backdrop-filter: saturate(180%) blur(20px);
-    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+    box-shadow:
+      inset 0 0 0 1px var(--nav-ring),
+      var(--nav-shadow);
   }
 
   .brand {
@@ -80,28 +244,7 @@ const links = [
     font-weight: 600;
     letter-spacing: 0.011em;
     white-space: nowrap;
-  }
-
-  .links {
-    display: flex;
-    gap: 24px;
-    margin-left: auto;
-  }
-
-  .links a {
-    font-size: 12px;
-    letter-spacing: -0.01em;
-    color: var(--text-2);
-    transition: color 0.3s var(--ease);
-  }
-
-  .links a:hover {
-    color: var(--strong);
-  }
-
-  .links a.active {
-    color: var(--strong);
-    font-weight: 600;
+    margin-right: auto;
   }
 
   .actions {
@@ -110,89 +253,391 @@ const links = [
     gap: 10px;
   }
 
-  .menu {
-    display: none;
-    position: relative;
-  }
-
-  .menu summary {
-    list-style: none;
-    width: 32px;
-    height: 32px;
-    display: grid;
-    place-content: center;
-    gap: 5px;
+  .btn-outline {
+    border: 0;
+    background: transparent;
+    color: var(--text);
+    box-shadow: inset 0 0 0 1px var(--line);
+    font-family: inherit;
     cursor: pointer;
   }
 
-  .menu summary::-webkit-details-marker {
-    display: none;
+  .btn-outline:hover {
+    background: var(--fill-chip);
   }
 
-  .menu summary span {
-    display: block;
-    width: 16px;
-    height: 1.5px;
+  /* ---------- Sheet ---------- */
+  .sheet {
+    width: min(1120px, calc(100vw - 32px));
+    max-width: none;
+    max-height: calc(100dvh - 32px);
+    margin: 16px auto auto;
+    padding: 0;
+    border: 0;
+    border-radius: var(--r-card);
+    background: var(--sheet-bg);
+    color: var(--text);
+    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.35);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+
+  .sheet[open] {
+    animation: sheet-in 0.5s var(--ease-out);
+  }
+
+  .sheet::backdrop {
+    background: rgba(0, 0, 0, 0.45);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+  }
+
+  .sheet[open]::backdrop {
+    animation: fade-in 0.4s var(--ease);
+  }
+
+  @keyframes sheet-in {
+    from {
+      opacity: 0;
+      transform: translateY(-18px) scale(0.985);
+    }
+  }
+
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+  }
+
+  .sheet-inner {
+    position: relative;
+    padding: clamp(28px, 4vw, 56px) clamp(20px, 5vw, 72px) clamp(28px, 4vw, 52px);
+  }
+
+  .close {
+    position: absolute;
+    top: 18px;
+    right: 18px;
+    width: 36px;
+    height: 36px;
+    border: 0;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
     background: var(--text);
-    border-radius: 2px;
+    color: var(--bg);
+    cursor: pointer;
     transition: transform 0.3s var(--ease);
   }
 
-  .menu[open] summary span:first-child {
-    transform: translateY(3.25px) rotate(45deg);
+  .close:hover {
+    transform: scale(1.06);
   }
 
-  .menu[open] summary span:last-child {
-    transform: translateY(-3.25px) rotate(-45deg);
+  /* project row */
+  .row-wrap {
+    position: relative;
+    margin-right: 44px;
   }
 
-  .menu-panel {
-    position: absolute;
-    right: -12px;
-    top: calc(100% + 18px);
-    min-width: 200px;
+  .prow {
+    list-style: none;
+    display: flex;
+    gap: 4px;
+    overflow-x: auto;
+    scroll-snap-type: x proximity;
+    scrollbar-width: none;
+    padding: 4px;
+  }
+
+  .prow::-webkit-scrollbar {
+    display: none;
+  }
+
+  .prow li {
+    flex: 0 0 auto;
+    scroll-snap-align: start;
+  }
+
+  .pitem {
     display: flex;
     flex-direction: column;
-    padding: 8px;
-    background: rgba(29, 29, 31, 0.92);
-    backdrop-filter: saturate(180%) blur(20px);
-    -webkit-backdrop-filter: saturate(180%) blur(20px);
+    align-items: center;
+    gap: 8px;
+    width: 148px;
+    padding: 12px 10px;
     border-radius: var(--r-tile);
-    box-shadow:
-      inset 0 0 0 1px rgba(255, 255, 255, 0.06),
-      0 20px 40px rgba(0, 0, 0, 0.5);
+    text-align: center;
+    transition: background-color 0.3s var(--ease);
   }
 
-  .menu-panel a {
-    padding: 10px 12px;
-    border-radius: var(--r-sm);
-    font-size: 15px;
-  }
-
-  .menu-panel a:hover {
+  .pitem:hover {
     background: var(--bg-hover);
   }
 
-  @media (max-width: 720px) {
+  .pthumb {
+    width: 112px;
+    aspect-ratio: 8 / 5;
+    border-radius: var(--r-xs);
+    background: var(--bg-inset);
+    overflow: hidden;
+    display: grid;
+    place-items: center;
+  }
+
+  .pthumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .pthumb :global(.pv) {
+    pointer-events: none;
+  }
+
+  .pthumb.all svg {
+    fill: none;
+    stroke: var(--muted);
+    stroke-width: 1.6;
+  }
+
+  .ptitle {
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.25;
+    letter-spacing: -0.016em;
+    color: var(--text);
+  }
+
+  .pnote {
+    margin-top: -4px;
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  .prow-next {
+    position: absolute;
+    right: -44px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 36px;
+    height: 36px;
+    border: 0;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    background: var(--fill-control);
+    color: var(--text);
+    cursor: pointer;
+  }
+
+  .prow-next[hidden] {
+    display: none;
+  }
+
+  .rule {
+    height: 1px;
+    background: var(--line);
+    margin: clamp(20px, 3vw, 32px) 0 clamp(28px, 4vw, 48px);
+  }
+
+  /* header */
+  .head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 20px 32px;
+  }
+
+  .head-title {
+    font-family: var(--font-display);
+    font-size: clamp(2rem, 4.6vw, 3.5rem);
+    line-height: 1.07;
+    letter-spacing: -0.005em;
+    font-weight: 600;
+  }
+
+  .head-side {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+  }
+
+  .head-meta {
+    text-align: right;
+    font-size: 14px;
+    line-height: 1.5;
+    font-weight: 600;
+    letter-spacing: -0.016em;
+    color: var(--text);
+  }
+
+  /* on this page */
+  .otp-wrap[hidden] {
+    display: none;
+  }
+
+  .otp {
+    margin-top: clamp(32px, 5vw, 56px);
+    font-size: 17px;
+    font-weight: 600;
+    color: var(--muted);
+  }
+
+  .sections {
+    list-style: none;
+    display: grid;
+    grid-template-columns: repeat(3, max-content);
+    gap: 8px clamp(24px, 6vw, 96px);
+    margin-top: 16px;
+  }
+
+  .sections :global(a) {
+    display: inline-block;
+    padding: 8px 16px;
+    margin-left: -16px;
+    border-radius: var(--r-pill);
+    corner-shape: round;
+    font-size: 17px;
+    font-weight: 600;
+    color: var(--text);
+    transition: background-color 0.3s var(--ease);
+  }
+
+  .sections :global(a:hover) {
+    background: var(--bg-hover);
+  }
+
+  .sections :global(a.on) {
+    background: var(--text);
+    color: var(--bg);
+  }
+
+  .links {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+    margin-top: clamp(28px, 4vw, 44px);
+  }
+
+  .blue-link {
+    font-family: var(--font-display);
+    font-size: clamp(19px, 1.8vw, 21px);
+    font-weight: 600;
+    color: var(--blue);
+  }
+
+  .blue-link:hover {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  /* language + appearance: Apple-style segmented controls */
+  .settings {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px 40px;
+    margin-top: clamp(32px, 4vw, 48px);
+    padding-top: 20px;
+    border-top: 1px solid var(--line);
+  }
+
+  .setting {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 14px;
+    color: var(--muted);
+  }
+
+  .seg {
+    display: inline-flex;
+    padding: 3px;
+    border-radius: var(--r-pill);
+    corner-shape: round;
+    background: var(--fill-chip);
+  }
+
+  .seg-item {
+    min-height: 30px;
+    padding: 0 14px;
+    border: 0;
+    background: transparent;
+    font-family: inherit;
+    font-size: 13px;
+    color: var(--text-2);
+    cursor: pointer;
+  }
+
+  .seg-item:hover {
+    color: var(--text);
+  }
+
+  .seg-item.on {
+    background: var(--seg-on);
+    color: var(--text);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+  }
+
+  @media (max-width: 760px) {
     .nav {
-      gap: 12px;
-      padding-left: 18px;
+      padding-left: 16px;
+      padding-right: 8px;
+      gap: 8px;
     }
 
     .brand {
       font-size: 17px;
     }
 
-    .links {
+    .actions {
+      gap: 8px;
+    }
+
+    .sheet {
+      width: calc(100vw - 16px);
+      margin-top: 8px;
+      max-height: calc(100dvh - 16px);
+    }
+
+    .close {
+      top: 12px;
+      right: 12px;
+    }
+
+    .row-wrap {
+      margin-right: 32px;
+    }
+
+    .prow-next {
       display: none;
     }
 
-    .actions {
-      margin-left: auto;
+    .pitem {
+      width: 118px;
     }
 
-    .menu {
-      display: block;
+    .pthumb {
+      width: 92px;
+    }
+
+    .head-side {
+      width: 100%;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 16px;
+    }
+
+    .head-meta {
+      text-align: left;
+      font-weight: 400;
+      color: var(--muted);
+    }
+
+    .sections {
+      grid-template-columns: repeat(2, max-content);
     }
   }
 </style>

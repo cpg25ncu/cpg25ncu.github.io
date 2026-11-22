@@ -13,6 +13,15 @@
   --fill-control: rgba(66, 66, 69, 0.72); /* round arrows, secondary controls */
   --fill-control-hover: rgba(86, 86, 90, 0.8);
   --fill-chip: rgba(255, 255, 255, 0.08);
+  --bg-card-hover: #232325;
+  --nav-bg: rgba(18, 18, 18, 0.8);
+  --nav-ring: rgba(255, 255, 255, 0.06);
+  --nav-shadow: 0 0 0 transparent;
+  --menu-bg: rgba(29, 29, 31, 0.92);
+  --menu-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+  --spot: rgba(255, 255, 255, 0.07);
+  --sheet-bg: #161617;
+  --seg-on: #48484a;
   --line: #424245; /* separators */
   --line-soft: rgba(255, 255, 255, 0.08);
 
@@ -33,6 +42,21 @@
   --hand-bone: #6e6e73;
   --hand-tip: #2997ff;
   --hand-dust: #48484a;
+
+  /* project diagrams (read inside SVG attributes) */
+  --pv-ink: #f5f5f7;
+  --pv-ink-rgb: 245, 245, 247;
+  --pv-ink-2: #d2d2d7;
+  --pv-mid: #a1a1a6;
+  --pv-mid-rgb: 161, 161, 166;
+  --pv-dim: #6e6e73;
+  --pv-accent: #2997ff;
+  --pv-accent-rgb: 41, 151, 255;
+  --pv-panel: #2a2a2d;
+  --pv-panel-2: #1d1d1f;
+  --pv-panel-3: #161617;
+  --pv-line-rgb: 255, 255, 255;
+  --pv-dots: #48484a;
 
   /* titanium-like metal for the one display headline */
   --metal: linear-gradient(180deg, #ffffff 0%, #ececf0 30%, #b9b9bf 62%, #7c7c82 100%);
@@ -62,6 +86,121 @@
 
   --ease: cubic-bezier(0.28, 0.11, 0.32, 1);
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* ---------- Light theme ----------
+   Follows the system by default; a visitor's choice sets html[data-theme="light" | "dark"].
+   The same token block is used for both routes into the light theme. */
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme='dark']) {
+    color-scheme: light;
+
+    --bg: #ffffff;
+    --bg-alt: #f5f5f7;
+    --bg-card: #f5f5f7;
+    --bg-card-hover: #efeff2;
+    --bg-inset: #ffffff;
+    --bg-hover: #e8e8ed;
+    --fill-control: rgba(210, 210, 215, 0.64);
+    --fill-control-hover: rgba(223, 223, 227, 0.9);
+    --fill-chip: rgba(0, 0, 0, 0.05);
+    --line: #d2d2d7;
+    --line-soft: rgba(0, 0, 0, 0.08);
+    --nav-bg: rgba(255, 255, 255, 0.78);
+    --nav-ring: rgba(0, 0, 0, 0.06);
+    --nav-shadow: 0 8px 28px rgba(0, 0, 0, 0.08);
+    --menu-bg: rgba(255, 255, 255, 0.94);
+    --menu-shadow: 0 12px 36px rgba(0, 0, 0, 0.14);
+    --spot: rgba(0, 0, 0, 0.035);
+    --sheet-bg: #ffffff;
+    --seg-on: #ffffff;
+
+    --text: #1d1d1f;
+    --strong: #1d1d1f;
+    --text-2: #424245;
+    --muted: #6e6e73;
+    --faint: #86868b;
+
+    --blue: #0066cc;
+    --blue-btn: #0071e3;
+    --blue-btn-hover: #0077ed;
+
+    --metal: linear-gradient(180deg, #1d1d1f 0%, #2c2c2e 38%, #57575c 74%, #86868b 100%);
+
+    --hand-joint: #1d1d1f;
+    --hand-bone: #86868b;
+    --hand-tip: #0071e3;
+    --hand-dust: #c7c7cc;
+
+    --pv-ink: #1d1d1f;
+    --pv-ink-rgb: 29, 29, 31;
+    --pv-ink-2: #424245;
+    --pv-mid: #6e6e73;
+    --pv-mid-rgb: 110, 110, 115;
+    --pv-dim: #aeaeb2;
+    --pv-accent: #0071e3;
+    --pv-accent-rgb: 0, 113, 227;
+    --pv-panel: #ffffff;
+    --pv-panel-2: #ffffff;
+    --pv-panel-3: #ffffff;
+    --pv-line-rgb: 0, 0, 0;
+    --pv-dots: #d2d2d7;
+  }
+}
+
+:root[data-theme='light'] {
+  color-scheme: light;
+
+  --bg: #ffffff;
+  --bg-alt: #f5f5f7;
+  --bg-card: #f5f5f7;
+  --bg-card-hover: #efeff2;
+  --bg-inset: #ffffff;
+  --bg-hover: #e8e8ed;
+  --fill-control: rgba(210, 210, 215, 0.64);
+  --fill-control-hover: rgba(223, 223, 227, 0.9);
+  --fill-chip: rgba(0, 0, 0, 0.05);
+  --line: #d2d2d7;
+  --line-soft: rgba(0, 0, 0, 0.08);
+  --nav-bg: rgba(255, 255, 255, 0.78);
+  --nav-ring: rgba(0, 0, 0, 0.06);
+  --nav-shadow: 0 8px 28px rgba(0, 0, 0, 0.08);
+  --menu-bg: rgba(255, 255, 255, 0.94);
+  --menu-shadow: 0 12px 36px rgba(0, 0, 0, 0.14);
+  --spot: rgba(0, 0, 0, 0.035);
+  --sheet-bg: #ffffff;
+  --seg-on: #ffffff;
+
+  --text: #1d1d1f;
+  --strong: #1d1d1f;
+  --text-2: #424245;
+  --muted: #6e6e73;
+  --faint: #86868b;
+
+  --blue: #0066cc;
+  --blue-btn: #0071e3;
+  --blue-btn-hover: #0077ed;
+
+  --metal: linear-gradient(180deg, #1d1d1f 0%, #2c2c2e 38%, #57575c 74%, #86868b 100%);
+
+  --hand-joint: #1d1d1f;
+  --hand-bone: #86868b;
+  --hand-tip: #0071e3;
+  --hand-dust: #c7c7cc;
+
+  --pv-ink: #1d1d1f;
+  --pv-ink-rgb: 29, 29, 31;
+  --pv-ink-2: #424245;
+  --pv-mid: #6e6e73;
+  --pv-mid-rgb: 110, 110, 115;
+  --pv-dim: #aeaeb2;
+  --pv-accent: #0071e3;
+  --pv-accent-rgb: 0, 113, 227;
+  --pv-panel: #ffffff;
+  --pv-panel-2: #ffffff;
+  --pv-panel-3: #ffffff;
+  --pv-line-rgb: 0, 0, 0;
+  --pv-dots: #d2d2d7;
 }
 
 /* Continuous-curvature (squircle) corners where supported, like Apple hardware.
@@ -283,6 +422,20 @@ html:lang(zh-CN) .statement {
 .lead b {
   font-weight: 600;
   color: var(--strong);
+}
+
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme='dark']) .copy b,
+  :root:not([data-theme='dark']) .copy strong,
+  :root:not([data-theme='dark']) .lead b {
+    font-weight: inherit;
+  }
+}
+
+:root[data-theme='light'] .copy b,
+:root[data-theme='light'] .copy strong,
+:root[data-theme='light'] .lead b {
+  font-weight: inherit;
 }
 
 html:lang(zh-CN) .copy,

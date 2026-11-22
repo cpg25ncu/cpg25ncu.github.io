@@ -27,8 +27,16 @@ const alternate = new URL(alternatePath(path, lang), Astro.site);
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="color-scheme" content="dark" />
-    <meta name="theme-color" content="#000000" />
+    <meta name="color-scheme" content="dark light" />
+    <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)" data-theme-color="dark" />
+    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" data-theme-color="light" />
+    <!-- Apply a saved appearance before first paint, so the page never flashes the wrong theme -->
+    <script is:inline>
+      try {
+        var t = localStorage.getItem('theme');
+        if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t;
+      } catch (e) {}
+    </script>
     <title>{pageTitle}</title>
     <meta name="description" content={desc} />
     <link rel="canonical" href={canonical} />
@@ -44,7 +52,7 @@ const alternate = new URL(alternatePath(path, lang), Astro.site);
   </head>
   <body>
     <a class="skip" href="#main">{lang === 'en' ? 'Skip to content' : '跳到正文'}</a>
-    <Nav lang={lang} />
+    <Nav lang={lang} title={title} />
     <main id="main">
       <slot />
     </main>

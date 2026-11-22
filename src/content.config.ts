@@ -16,6 +16,8 @@ const projects = defineCollection({
     .object({
       title: z.string(),
       fullTitle: z.string(),
+      // Short name for tight spots such as the Explore sheet's project row
+      short: z.string().optional(),
       order: z.number(),
       featured: z.boolean().default(true),
       kicker: z.string(),

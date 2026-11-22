@@ -1,6 +1,7 @@
 ---
 title: Real-Time Hand Gesture Recognition
 fullTitle: Real-Time Hand Gesture Recognition with MediaPipe and Machine Learning
+short: Gesture Recognition
 order: 2
 kicker: Real-time vision
 tagline: An end-to-end, real-time gesture recognition system for touch-free human-computer interaction in complex scenes.

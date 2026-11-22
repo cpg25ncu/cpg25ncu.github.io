@@ -123,8 +123,8 @@ export function mountHandScene(stage: HTMLElement) {
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
   renderer.setClearColor(0x000000, 0);
 
-  const css = getComputedStyle(stage);
-  const token = (name: string, fallback: string) => css.getPropertyValue(name).trim() || fallback;
+  // Colours come from CSS tokens and are re-read whenever the theme changes.
+  const token = (name: string, fallback: string) => getComputedStyle(stage).getPropertyValue(name).trim() || fallback;
   const INK = new Color(token('--hand-joint', '#f5f5f7'));
   const ACCENT = new Color(token('--hand-tip', '#2997ff'));
   const BONE = new Color(token('--hand-bone', '#6e6e73'));
@@ -183,6 +183,22 @@ export function mountHandScene(stage: HTMLElement) {
     new PointsMaterial({ size: 0.045, map: sprite, color: DUST_COLOR, transparent: true, opacity: 0.9, depthWrite: false }),
   );
   scene.add(dust);
+
+  function applyTheme() {
+    INK.set(token('--hand-joint', '#f5f5f7'));
+    ACCENT.set(token('--hand-tip', '#2997ff'));
+    BONE.set(token('--hand-bone', '#6e6e73'));
+    DUST_COLOR.set(token('--hand-dust', '#48484a'));
+    for (let i = 0; i < 21; i++) (TIPS.has(i) ? ACCENT : INK).toArray(colors, i * 3);
+    pointGeo.attributes.color.needsUpdate = true;
+    (tipHalo.material as PointsMaterial).color.copy(ACCENT);
+    (bones.material as LineBasicMaterial).color.copy(BONE);
+    (dust.material as PointsMaterial).color.copy(DUST_COLOR);
+  }
+  document.addEventListener('themechange', () => {
+    applyTheme();
+    renderer.render(scene, camera); // repaint even when the loop is paused
+  });
 
   // ---- Pose state: hold, then morph to the next pose (or to the one a visitor picked) ----
   const HOLD = 2.6;
