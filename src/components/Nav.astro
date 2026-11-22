@@ -15,35 +15,17 @@ const home = localePath('/', lang);
 const links = [
   { href: `${home}#projects`, label: copy.nav.projects, active: path.includes('/projects/') },
   { href: localePath('/experience/', lang), label: copy.nav.experience, active: path.includes('/experience/') },
-  { href: profile.cvFiles[lang], label: copy.nav.cv, active: false, download: true },
 ];
 ---
 
-<header class="nav">
-  <div class="container nav-inner">
-    <a class="brand" href={home} aria-label={copy.siteTitle}>
-      <svg class="mark" viewBox="0 0 24 24" aria-hidden="true">
-        <defs>
-          <linearGradient id="mark-g" x1="0" y1="1" x2="1" y2="0">
-            <stop offset="0" stop-color="#5ee7ff" />
-            <stop offset="0.5" stop-color="#b36bff" />
-            <stop offset="1" stop-color="#ffb36b" />
-          </linearGradient>
-        </defs>
-        <path d="M12 21.5V13M12 13L7.2 5.5M12 13l.6-10M12 13l4.2-8M12 13l5.8-4.6" stroke="url(#mark-g)" stroke-width="1.6" stroke-linecap="round" fill="none" />
-        <circle cx="12" cy="13" r="1.9" fill="#f7f8f8" />
-        <circle cx="7.2" cy="5.5" r="1.3" fill="#5ee7ff" />
-        <circle cx="12.6" cy="3" r="1.3" fill="#6c8cff" />
-        <circle cx="16.2" cy="5" r="1.3" fill="#b36bff" />
-        <circle cx="17.8" cy="8.4" r="1.3" fill="#ff6bb5" />
-      </svg>
-      <span>{profile.name}</span>
-    </a>
+<header class="nav-wrap">
+  <div class="nav">
+    <a class="brand" href={home}>{profile.name}</a>
 
     <nav class="links" aria-label="Primary">
       {
         links.map((l) => (
-          <a href={l.href} class:list={[{ active: l.active }]} download={l.download ? '' : undefined}>
+          <a href={l.href} class:list={[{ active: l.active }]} aria-current={l.active ? 'page' : undefined}>
             {l.label}
           </a>
         ))
@@ -51,24 +33,15 @@ const links = [
     </nav>
 
     <div class="actions">
-      <a class="lang" href={alternatePath(path, lang)} hreflang={languages[other].htmlLang} lang={languages[other].htmlLang} aria-label={copy.nav.switchTo}>
+      <a class="btn btn-sm btn-ghost" href={alternatePath(path, lang)} hreflang={languages[other].htmlLang} lang={languages[other].htmlLang} aria-label={copy.nav.switchTo}>
         {languages[other].label}
       </a>
-      <a class="icon" href={profile.github} aria-label="GitHub" rel="me">
-        <svg viewBox="0 0 16 16" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
-      </a>
+      <a class="btn btn-sm btn-primary" href={profile.cvFiles[lang]} download>{copy.nav.cv}</a>
       <details class="menu">
-        <summary aria-label={copy.nav.menu}>
-          <span></span><span></span>
-        </summary>
+        <summary aria-label={copy.nav.menu}><span></span><span></span></summary>
         <div class="menu-panel">
-          {
-            links.map((l) => (
-              <a href={l.href} download={l.download ? '' : undefined}>
-                {l.label}
-              </a>
-            ))
-          }
+          {links.map((l) => <a href={l.href}>{l.label}</a>)}
+          <a href={profile.github} rel="me">GitHub</a>
         </div>
       </details>
     </div>
@@ -76,94 +49,65 @@ const links = [
 </header>
 
 <style>
-  .nav {
+  /* Floating pill, after Apple's product-page local nav (1024 × 52, radius 18, 80% black + 20px blur) */
+  .nav-wrap {
     position: sticky;
     top: 0;
     z-index: 50;
-    height: var(--nav-h);
-    background: rgba(8, 9, 10, 0.72);
-    backdrop-filter: saturate(180%) blur(20px);
-    -webkit-backdrop-filter: saturate(180%) blur(20px);
-    border-bottom: 1px solid var(--line);
+    padding: 10px 12px;
+    pointer-events: none;
   }
 
-  .nav-inner {
-    height: 100%;
+  .nav {
+    pointer-events: auto;
+    max-width: var(--maxw);
+    height: var(--nav-h);
+    margin-inline: auto;
     display: flex;
     align-items: center;
     gap: 24px;
+    padding: 0 12px 0 22px;
+    border-radius: var(--r-nav);
+    background: rgba(18, 18, 18, 0.8);
+    backdrop-filter: saturate(180%) blur(20px);
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06);
   }
 
   .brand {
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-    font-weight: 590;
-    font-size: 15px;
-    letter-spacing: -0.01em;
+    font-family: var(--font-display);
+    font-size: 21px;
+    font-weight: 600;
+    letter-spacing: 0.011em;
     white-space: nowrap;
-  }
-
-  .mark {
-    width: 24px;
-    height: 24px;
   }
 
   .links {
     display: flex;
-    gap: 4px;
+    gap: 24px;
     margin-left: auto;
   }
 
   .links a {
-    font-size: 14px;
-    color: var(--muted);
-    padding: 6px 12px;
-    border-radius: var(--r-pill);
-    transition: color 0.2s var(--ease), background-color 0.2s var(--ease);
+    font-size: 12px;
+    letter-spacing: -0.01em;
+    color: var(--text-2);
+    transition: color 0.3s var(--ease);
   }
 
-  .links a:hover,
-  .links a.active {
-    color: var(--text);
+  .links a:hover {
+    color: var(--strong);
   }
 
   .links a.active {
-    background: rgba(255, 255, 255, 0.06);
+    color: var(--strong);
+    font-weight: 600;
   }
 
   .actions {
     display: flex;
     align-items: center;
-    gap: 8px;
-  }
-
-  .lang {
-    font-size: 13px;
-    font-weight: 540;
-    color: var(--text-2);
-    border: 1px solid var(--line-strong);
-    border-radius: var(--r-pill);
-    padding: 4px 11px;
-    transition: background-color 0.2s var(--ease);
-  }
-
-  .lang:hover {
-    background: var(--bg-hover);
-  }
-
-  .icon {
-    display: grid;
-    place-items: center;
-    width: 34px;
-    height: 34px;
-    color: var(--muted);
-    border-radius: 50%;
-    transition: color 0.2s var(--ease);
-  }
-
-  .icon:hover {
-    color: var(--text);
+    gap: 10px;
   }
 
   .menu {
@@ -173,11 +117,11 @@ const links = [
 
   .menu summary {
     list-style: none;
-    width: 34px;
-    height: 34px;
+    width: 32px;
+    height: 32px;
     display: grid;
     place-content: center;
-    gap: 6px;
+    gap: 5px;
     cursor: pointer;
   }
 
@@ -187,33 +131,36 @@ const links = [
 
   .menu summary span {
     display: block;
-    width: 18px;
+    width: 16px;
     height: 1.5px;
     background: var(--text);
     border-radius: 2px;
-    transition: transform 0.25s var(--ease);
+    transition: transform 0.3s var(--ease);
   }
 
   .menu[open] summary span:first-child {
-    transform: translateY(3.75px) rotate(45deg);
+    transform: translateY(3.25px) rotate(45deg);
   }
 
   .menu[open] summary span:last-child {
-    transform: translateY(-3.75px) rotate(-45deg);
+    transform: translateY(-3.25px) rotate(-45deg);
   }
 
   .menu-panel {
     position: absolute;
-    right: 0;
-    top: calc(100% + 12px);
+    right: -12px;
+    top: calc(100% + 18px);
     min-width: 200px;
     display: flex;
     flex-direction: column;
     padding: 8px;
-    background: rgba(17, 18, 19, 0.96);
-    border: 1px solid var(--line-strong);
-    border-radius: var(--r-md);
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+    background: rgba(29, 29, 31, 0.92);
+    backdrop-filter: saturate(180%) blur(20px);
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
+    border-radius: var(--r-tile);
+    box-shadow:
+      inset 0 0 0 1px rgba(255, 255, 255, 0.06),
+      0 20px 40px rgba(0, 0, 0, 0.5);
   }
 
   .menu-panel a {
@@ -227,6 +174,15 @@ const links = [
   }
 
   @media (max-width: 720px) {
+    .nav {
+      gap: 12px;
+      padding-left: 18px;
+    }
+
+    .brand {
+      font-size: 17px;
+    }
+
     .links {
       display: none;
     }

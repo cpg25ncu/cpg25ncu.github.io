@@ -92,7 +92,7 @@ const en: CV = {
   ],
   internships: [
     {
-      company: 'East China Oil & Gas Branch, China Petroleum & Chemical Corporation (Sinopec)',
+      company: 'Sinopec East China Oil & Gas Branch',
       unit: 'Information Management Center',
       role: 'Software Testing Intern',
       team: 'Data Application Department',
@@ -120,7 +120,7 @@ const en: CV = {
       ],
     },
     {
-      company: 'Shengli Oilfield Branch, China Petroleum & Chemical Corporation (Sinopec)',
+      company: 'Sinopec Shengli Oilfield Branch',
       unit: 'Audit Department',
       role: 'IT Audit Intern',
       location: 'Dongying, China',
@@ -146,7 +146,7 @@ const en: CV = {
       ],
     },
     {
-      company: 'Shengli Oilfield Branch, China Petroleum & Chemical Corporation (Sinopec)',
+      company: 'Sinopec Shengli Oilfield Branch',
       unit: 'Offshore Oil Production Plant',
       role: 'IT Operations Intern',
       location: 'Dongying, China',

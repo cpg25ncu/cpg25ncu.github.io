@@ -1,5 +1,5 @@
 ---
-import { t, type Lang } from '../i18n/ui';
+import { t, localePath, alternatePath, type Lang } from '../i18n/ui';
 import { cv } from '../data/cv';
 
 interface Props {
@@ -8,59 +8,177 @@ interface Props {
 
 const { lang } = Astro.props;
 const copy = t(lang);
+const f = copy.footer;
 const profile = cv[lang];
 const year = new Date().getFullYear();
+const path = Astro.url.pathname;
+const home = localePath('/', lang);
+const columns = [
+  {
+    title: f.explore,
+    links: [
+      { label: copy.nav.projects, href: `${home}#projects` },
+      { label: copy.nav.experience, href: localePath('/experience/', lang) },
+    ],
+  },
+  {
+    title: f.cv,
+    links: [
+      { label: f.cvEn, href: profile.cvFiles.en, download: true },
+      { label: f.cvZh, href: profile.cvFiles.zh, download: true },
+    ],
+  },
+  {
+    title: f.contact,
+    links: [
+      { label: f.email, href: `mailto:${profile.email}` },
+      { label: 'GitHub', href: profile.github, rel: 'me' },
+    ],
+  },
+];
+const enHref = lang === 'en' ? path : alternatePath(path, lang);
+const zhHref = lang === 'zh' ? path : alternatePath(path, lang);
 ---
 
 <footer class="footer">
-  <div class="container footer-inner">
-    <p>© {year} {profile.name}</p>
-    <p class="links">
-      <a href={`mailto:${profile.email}`}>{profile.email}</a>
-      <span aria-hidden="true">·</span>
-      <a href={profile.github} rel="me">{profile.githubLabel}</a>
-    </p>
-    <p class="built">{copy.footer.built}</p>
+  <div class="container">
+    <div class="top">
+      <div class="who">
+        <p class="name">{profile.name}</p>
+        <p class="sub">{copy.statement.lead}</p>
+      </div>
+      <nav class="cols" aria-label={f.explore}>
+        {
+          columns.map((c) => (
+            <div class="col">
+              <h2>{c.title}</h2>
+              <ul>
+                {c.links.map((l) => (
+                  <li>
+                    <a href={l.href} download={l.download ? '' : undefined} rel={l.rel}>
+                      {l.label}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))
+        }
+      </nav>
+    </div>
+    <div class="bottom">
+      <p>Copyright © {year} {profile.name}. {f.rights}</p>
+      <p class="region">
+        <span>{profile.location}</span>
+        <span class="sep" aria-hidden="true"></span>
+        <a href={enHref} lang="en" hreflang="en" aria-current={lang === 'en' ? 'true' : undefined}>English</a>
+        <span aria-hidden="true">/</span>
+        <a href={zhHref} lang="zh-CN" hreflang="zh-CN" aria-current={lang === 'zh' ? 'true' : undefined}>中文</a>
+      </p>
+    </div>
   </div>
 </footer>
 
 <style>
+  /* After Apple's footer: 12px grey type, link columns, hairline-separated legal row */
   .footer {
-    border-top: 1px solid var(--line);
-    padding-block: 32px 40px;
-    font-size: 13px;
-    color: var(--faint);
-  }
-
-  .footer-inner {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 8px 24px;
-  }
-
-  .links {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-  }
-
-  .links a {
+    background: var(--bg-alt);
     color: var(--muted);
+    font-size: 12px;
+    line-height: 1.33;
+    letter-spacing: -0.01em;
+    padding-block: 40px 24px;
   }
 
-  .links a:hover {
+  .top {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 32px 48px;
+    padding-bottom: 28px;
+  }
+
+  .name {
+    font-family: var(--font-display);
+    font-size: 17px;
+    font-weight: 600;
+    letter-spacing: -0.022em;
     color: var(--text);
   }
 
-  .built {
-    margin-left: auto;
+  .sub {
+    margin-top: 6px;
+  }
+
+  .cols {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(120px, auto));
+    gap: 24px 56px;
+  }
+
+  .col h2 {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-2);
+    margin-bottom: 10px;
+  }
+
+  .col ul {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .col a,
+  .region a {
+    color: var(--muted);
+    transition: color 0.3s var(--ease);
+  }
+
+  .col a:hover,
+  .region a:hover {
+    color: var(--text);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  .region a[aria-current] {
+    color: var(--text-2);
+  }
+
+  .bottom {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 8px 24px;
+    padding-top: 16px;
+    border-top: 1px solid var(--line);
+  }
+
+  .region {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .sep {
+    width: 1px;
+    height: 12px;
+    background: var(--line);
   }
 
   @media (max-width: 720px) {
-    .built {
-      margin-left: 0;
-      width: 100%;
+    .top {
+      grid-template-columns: 1fr;
+    }
+
+    .cols {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 24px;
+    }
+
+    .bottom {
+      flex-direction: column;
     }
   }
 </style>

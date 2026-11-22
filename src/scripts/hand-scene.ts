@@ -1,6 +1,7 @@
-// Hero visual: the 21 MediaPipe hand landmarks as a glowing 3D point cloud that morphs between gestures.
+// Hero visual: the 21 MediaPipe hand landmarks, rendered like a product shot.
+// Colours come from CSS variables (--hand-joint, --hand-bone, --hand-tip, --hand-dust) so a theme can restyle it.
+// It cycles through gestures; swatches below let visitors pick one.
 import {
-  AdditiveBlending,
   BufferAttribute,
   BufferGeometry,
   CanvasTexture,
@@ -8,6 +9,7 @@ import {
   Group,
   LineBasicMaterial,
   LineSegments,
+  NormalBlending,
   PerspectiveCamera,
   Points,
   PointsMaterial,
@@ -17,7 +19,7 @@ import {
 } from 'three';
 
 type Joint3 = [number, number, number];
-interface Pose {
+export interface Pose {
   name: string;
   curl: Joint3[]; // per finger (thumb, index, middle, ring, pinky): MCP, PIP, DIP bend in radians
   spread: number[]; // per finger sideways rotation in radians
@@ -29,7 +31,7 @@ const THUMB_IN: Joint3 = [0.55, 0.75, 0.55];
 const THUMB_OUT: Joint3 = [0.05, 0.08, 0.06];
 
 // Names follow MediaPipe Gesture Recognizer's built-in categories.
-const POSES: Pose[] = [
+export const POSES: Pose[] = [
   { name: 'Open_Palm', curl: [THUMB_OUT, STRAIGHT, STRAIGHT, STRAIGHT, STRAIGHT], spread: [0.12, 0.12, 0, -0.08, -0.2] },
   { name: 'Victory', curl: [THUMB_IN, STRAIGHT, STRAIGHT, BENT, BENT], spread: [0, 0.2, -0.12, 0, 0] },
   { name: 'ILoveYou', curl: [THUMB_OUT, STRAIGHT, BENT, BENT, STRAIGHT], spread: [0.25, 0.06, 0, 0, -0.28] },
@@ -51,14 +53,8 @@ const BONES = [
   [9, 13], [13, 14], [14, 15], [15, 16], [13, 17], [0, 17], [17, 18], [18, 19], [19, 20],
 ];
 
-const FINGER_COLORS = ['#5ee7ff', '#6c8cff', '#b36bff', '#ff6bb5', '#ffb36b'].map((c) => new Color(c));
-const WRIST_COLOR = new Color('#f7f8f8');
-const PALM_COLOR = new Color('#9aa3b5');
+const TIPS = new Set([4, 8, 12, 16, 20]);
 const CENTER = new Vector3(0.05, 2.15, 0);
-
-function landmarkColor(i: number): Color {
-  return i === 0 ? WRIST_COLOR : FINGER_COLORS[Math.floor((i - 1) / 4)];
-}
 
 function solve(curl: Joint3[], spread: number[], out: Float32Array) {
   out[0] = 0;
@@ -95,14 +91,15 @@ function solve(curl: Joint3[], spread: number[], out: Float32Array) {
   }
 }
 
+/** A crisp disc with a soft 1px edge, so points read as solid dots on white. */
 function dotTexture(): CanvasTexture {
   const c = document.createElement('canvas');
   c.width = c.height = 64;
   const g = c.getContext('2d')!;
   const grad = g.createRadialGradient(32, 32, 0, 32, 32, 32);
   grad.addColorStop(0, 'rgba(255,255,255,1)');
-  grad.addColorStop(0.25, 'rgba(255,255,255,0.85)');
-  grad.addColorStop(0.55, 'rgba(255,255,255,0.18)');
+  grad.addColorStop(0.62, 'rgba(255,255,255,1)');
+  grad.addColorStop(0.78, 'rgba(255,255,255,0.35)');
   grad.addColorStop(1, 'rgba(255,255,255,0)');
   g.fillStyle = grad;
   g.fillRect(0, 0, 64, 64);
@@ -110,10 +107,10 @@ function dotTexture(): CanvasTexture {
 }
 
 const ease = (x: number) => (x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2);
+const copyCurl = (c: Joint3[]) => c.map((j) => [...j] as Joint3);
 
 export function mountHandScene(stage: HTMLElement) {
   const canvas = stage.querySelector('canvas');
-  const label = document.querySelector<HTMLElement>('[data-gesture-label]');
   if (!canvas) return;
 
   let renderer: WebGLRenderer;
@@ -126,6 +123,13 @@ export function mountHandScene(stage: HTMLElement) {
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
   renderer.setClearColor(0x000000, 0);
 
+  const css = getComputedStyle(stage);
+  const token = (name: string, fallback: string) => css.getPropertyValue(name).trim() || fallback;
+  const INK = new Color(token('--hand-joint', '#f5f5f7'));
+  const ACCENT = new Color(token('--hand-tip', '#2997ff'));
+  const BONE = new Color(token('--hand-bone', '#6e6e73'));
+  const DUST_COLOR = new Color(token('--hand-dust', '#48484a'));
+
   const scene = new Scene();
   const camera = new PerspectiveCamera(35, 1, 0.1, 100);
   camera.position.set(0, 0, 10);
@@ -136,60 +140,71 @@ export function mountHandScene(stage: HTMLElement) {
   const sprite = dotTexture();
   const positions = new Float32Array(21 * 3);
   const colors = new Float32Array(21 * 3);
-  for (let i = 0; i < 21; i++) landmarkColor(i).toArray(colors, i * 3);
+  for (let i = 0; i < 21; i++) (TIPS.has(i) ? ACCENT : INK).toArray(colors, i * 3);
 
   const pointGeo = new BufferGeometry();
   pointGeo.setAttribute('position', new BufferAttribute(positions, 3));
   pointGeo.setAttribute('color', new BufferAttribute(colors, 3));
-  const core = new Points(
+  const joints = new Points(
     pointGeo,
-    new PointsMaterial({ size: 0.26, map: sprite, vertexColors: true, transparent: true, depthWrite: false, blending: AdditiveBlending }),
+    new PointsMaterial({ size: 0.25, map: sprite, vertexColors: true, transparent: true, alphaTest: 0.05, blending: NormalBlending }),
   );
-  const halo = new Points(
-    pointGeo,
-    new PointsMaterial({ size: 0.95, map: sprite, vertexColors: true, transparent: true, opacity: 0.35, depthWrite: false, blending: AdditiveBlending }),
+  // Soft ring around fingertips, like a selection state
+  const tipGeo = new BufferGeometry();
+  const tipPos = new Float32Array(5 * 3);
+  tipGeo.setAttribute('position', new BufferAttribute(tipPos, 3));
+  const tipHalo = new Points(
+    tipGeo,
+    new PointsMaterial({ size: 0.7, map: sprite, color: ACCENT, transparent: true, opacity: 0.22, depthWrite: false, blending: NormalBlending }),
   );
-  hand.add(halo, core);
+  hand.add(tipHalo, joints);
 
   const bonePos = new Float32Array(BONES.length * 2 * 3);
-  const boneCol = new Float32Array(BONES.length * 2 * 3);
-  BONES.forEach(([a, b], i) => {
-    const palm = a === 0 || (a % 4 === 1 && b % 4 === 1);
-    const ca = palm ? PALM_COLOR : landmarkColor(b);
-    const cb = palm ? PALM_COLOR : landmarkColor(b);
-    ca.toArray(boneCol, i * 6);
-    cb.toArray(boneCol, i * 6 + 3);
-  });
   const boneGeo = new BufferGeometry();
   boneGeo.setAttribute('position', new BufferAttribute(bonePos, 3));
-  boneGeo.setAttribute('color', new BufferAttribute(boneCol, 3));
-  const bones = new LineSegments(
-    boneGeo,
-    new LineBasicMaterial({ vertexColors: true, transparent: true, opacity: 0.7, blending: AdditiveBlending, depthWrite: false }),
-  );
+  const bones = new LineSegments(boneGeo, new LineBasicMaterial({ color: BONE, transparent: true, opacity: 0.9 }));
   hand.add(bones);
 
-  // Ambient dust for depth
-  const DUST = 520;
+  // Faint dust for depth
+  const DUST = 260;
   const dustPos = new Float32Array(DUST * 3);
   for (let i = 0; i < DUST; i++) {
-    const r = 3.2 + Math.random() * 5.5;
+    const r = 3.4 + Math.random() * 5;
     const th = Math.random() * Math.PI * 2;
     const ph = Math.acos(2 * Math.random() - 1);
     dustPos[i * 3] = r * Math.sin(ph) * Math.cos(th);
-    dustPos[i * 3 + 1] = r * Math.cos(ph) * 0.6;
+    dustPos[i * 3 + 1] = r * Math.cos(ph) * 0.55;
     dustPos[i * 3 + 2] = r * Math.sin(ph) * Math.sin(th) - 2;
   }
   const dustGeo = new BufferGeometry();
   dustGeo.setAttribute('position', new BufferAttribute(dustPos, 3));
   const dust = new Points(
     dustGeo,
-    new PointsMaterial({ size: 0.06, map: sprite, color: 0x8a9bd8, transparent: true, opacity: 0.55, depthWrite: false, blending: AdditiveBlending }),
+    new PointsMaterial({ size: 0.045, map: sprite, color: DUST_COLOR, transparent: true, opacity: 0.9, depthWrite: false }),
   );
   scene.add(dust);
 
-  const curl: Joint3[] = POSES[0].curl.map((j) => [...j] as Joint3);
+  // ---- Pose state: hold, then morph to the next pose (or to the one a visitor picked) ----
+  const HOLD = 2.6;
+  const MORPH = 1.0;
+  const curl: Joint3[] = copyCurl(POSES[0].curl);
   const spread = [...POSES[0].spread];
+  let fromCurl = copyCurl(curl);
+  let fromSpread = [...spread];
+  let target = 0;
+  let morphStart = -1;
+  let holdStart = performance.now() / 1000;
+  let autoAfter = 0; // auto-cycling resumes after this time (seconds)
+
+  const emit = (i: number) => stage.dispatchEvent(new CustomEvent('pose', { detail: { index: i, name: POSES[i].name } }));
+
+  function startMorph(i: number, t: number) {
+    fromCurl = copyCurl(curl);
+    fromSpread = [...spread];
+    target = i;
+    morphStart = t;
+    emit(i);
+  }
 
   function writePose() {
     solve(curl, spread, positions);
@@ -197,8 +212,10 @@ export function mountHandScene(stage: HTMLElement) {
       bonePos.set(positions.subarray(a * 3, a * 3 + 3), i * 6);
       bonePos.set(positions.subarray(b * 3, b * 3 + 3), i * 6 + 3);
     });
+    [4, 8, 12, 16, 20].forEach((p, i) => tipPos.set(positions.subarray(p * 3, p * 3 + 3), i * 3));
     pointGeo.attributes.position.needsUpdate = true;
     boneGeo.attributes.position.needsUpdate = true;
+    tipGeo.attributes.position.needsUpdate = true;
   }
 
   function resize() {
@@ -207,7 +224,7 @@ export function mountHandScene(stage: HTMLElement) {
     if (!w || !h) return;
     renderer.setSize(w, h, false);
     camera.aspect = w / h;
-    camera.position.z = Math.max(10, 7.4 / camera.aspect);
+    camera.position.z = Math.max(8.4, 6.8 / camera.aspect);
     camera.updateProjectionMatrix();
   }
 
@@ -222,40 +239,25 @@ export function mountHandScene(stage: HTMLElement) {
     { passive: true },
   );
 
-  const HOLD = 2.6;
-  const MORPH = 1.1;
-  let poseIndex = 0;
   let visible = true;
   let raf = 0;
-  const start = performance.now();
+  const clock = () => performance.now() / 1000;
 
-  function setLabel(name: string) {
-    if (label) label.textContent = name;
-  }
-  setLabel(POSES[0].name);
-
-  function frame(now: number) {
-    // A frame's timestamp can precede `start` (taken mid-frame), so clamp to keep the pose index valid.
-    const t = Math.max(0, (now - start) / 1000);
-    const cycle = HOLD + MORPH;
-    const n = Math.floor(t / cycle);
-    const local = t - n * cycle;
-    const fromIndex = n % POSES.length;
-    const toIndex = (n + 1) % POSES.length;
-    const from = POSES[fromIndex];
-    const to = POSES[toIndex];
-    const m = local < HOLD ? 0 : ease((local - HOLD) / MORPH);
-    if (m > 0.5 && poseIndex !== toIndex) {
-      poseIndex = toIndex;
-      setLabel(to.name);
-    } else if (m <= 0.5 && poseIndex !== fromIndex) {
-      poseIndex = fromIndex;
-      setLabel(from.name);
+  function frame() {
+    const t = clock();
+    if (morphStart < 0) {
+      if (t - holdStart > HOLD && t > autoAfter) startMorph((target + 1) % POSES.length, t);
     }
-    const breathe = Math.sin(t * 1.7) * 0.04;
+    const m = morphStart < 0 ? 1 : ease(Math.min((t - morphStart) / MORPH, 1));
+    const to = POSES[target];
+    const breathe = Math.sin(t * 1.7) * 0.035;
     for (let f = 0; f < 5; f++) {
-      for (let j = 0; j < 3; j++) curl[f][j] = from.curl[f][j] + (to.curl[f][j] - from.curl[f][j]) * m + breathe * (j + 1) * 0.3;
-      spread[f] = from.spread[f] + (to.spread[f] - from.spread[f]) * m;
+      for (let j = 0; j < 3; j++) curl[f][j] = fromCurl[f][j] + (to.curl[f][j] - fromCurl[f][j]) * m + breathe * (j + 1) * 0.3;
+      spread[f] = fromSpread[f] + (to.spread[f] - fromSpread[f]) * m;
+    }
+    if (morphStart >= 0 && m >= 1) {
+      morphStart = -1;
+      holdStart = t;
     }
     writePose();
 
@@ -264,23 +266,46 @@ export function mountHandScene(stage: HTMLElement) {
     const rect = stage.getBoundingClientRect();
     const stageBottom = rect.bottom + window.scrollY;
     const scroll = Math.min(Math.max(window.scrollY / Math.max(stageBottom, 1), 0), 1);
-    hand.rotation.y = Math.sin(t * 0.35) * 0.5 + pointer.x * 0.35 + scroll * 1.4;
-    hand.rotation.x = -0.12 + pointer.y * 0.18 + scroll * 0.5;
-    hand.rotation.z = Math.sin(t * 0.25) * 0.05;
-    hand.position.y = Math.sin(t * 0.8) * 0.06 + scroll * 1.2;
-    hand.scale.setScalar(1 - scroll * 0.25);
+    hand.rotation.y = Math.sin(t * 0.35) * 0.45 + pointer.x * 0.3 + scroll * 1.2;
+    hand.rotation.x = -0.1 + pointer.y * 0.15 + scroll * 0.4;
+    hand.rotation.z = Math.sin(t * 0.25) * 0.04;
+    hand.position.y = -0.12 + Math.sin(t * 0.8) * 0.05 + scroll * 1.0;
+    hand.scale.setScalar(1 - scroll * 0.2);
     dust.rotation.y = t * 0.02;
     renderer.render(scene, camera);
     if (visible) raf = requestAnimationFrame(frame);
   }
 
+  // Swatches (or anything else) can ask for a pose: stage.dispatchEvent(new CustomEvent('pose:goto', {detail: i}))
+  stage.addEventListener('pose:goto', (e) => {
+    const i = (e as CustomEvent<number>).detail;
+    if (i === target && morphStart < 0) return;
+    const t = clock();
+    autoAfter = t + 6;
+    startMorph(i, t);
+    if (reduced) {
+      for (let f = 0; f < 5; f++) {
+        curl[f] = [...POSES[i].curl[f]] as Joint3;
+        spread[f] = POSES[i].spread[f];
+      }
+      morphStart = -1;
+      writePose();
+      renderer.render(scene, camera);
+    }
+  });
+
   resize();
-  new ResizeObserver(resize).observe(stage);
+  new ResizeObserver(() => {
+    resize();
+    if (reduced) renderer.render(scene, camera);
+  }).observe(stage);
+  emit(0);
 
   if (reduced) {
     writePose();
-    hand.rotation.set(-0.12, -0.35, 0);
+    hand.rotation.set(-0.1, -0.3, 0);
     renderer.render(scene, camera);
+    stage.classList.add('ready');
     return;
   }
 

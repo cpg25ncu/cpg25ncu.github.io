@@ -22,7 +22,7 @@ const d = project.data;
     <header class="p-hero">
       <div class="container p-hero-inner">
         <a class="back" href={`${localePath('/', lang)}#projects`}>‹ {copy.back}</a>
-        <p class="kicker rise" style="--d:0">{d.kicker}</p>
+        <p class="eyebrow rise" style="--d:0">{d.kicker}</p>
         <h1 class="h-1 rise" style="--d:1">{d.fullTitle}</h1>
         <p class="lead rise" style="--d:2">{d.tagline}</p>
         <dl class="facts rise" style="--d:3">
@@ -103,7 +103,7 @@ const d = project.data;
     <section class="section result">
       <div class="container result-inner">
         <p class="kicker" data-reveal>{copy.keyResult}</p>
-        <p class="result-value gradient-text" data-count data-reveal>{d.metric.value}</p>
+        <p class="result-value metal" data-count data-reveal>{d.metric.value}</p>
         <p class="lead" data-reveal>{d.metric.label}</p>
       </div>
     </section>
@@ -122,8 +122,6 @@ const d = project.data;
   .p-hero {
     padding-top: clamp(40px, 8vh, 88px);
     padding-bottom: clamp(48px, 8vw, 96px);
-    border-bottom: 1px solid var(--line);
-    background: radial-gradient(60% 50% at 50% 0%, rgba(108, 140, 255, 0.1), transparent 70%);
   }
 
   .p-hero-inner {
@@ -199,10 +197,7 @@ const d = project.data;
   .stage-card {
     position: sticky;
     top: calc(var(--nav-h) + 32px);
-    padding: 20px 24px 24px;
-    background:
-      radial-gradient(100% 70% at 50% 0%, rgba(108, 140, 255, 0.08), transparent 60%),
-      var(--bg-card);
+    padding: 20px; /* inner screen radius = card radius − 20px (concentric) */
   }
 
   .stage-top {
@@ -256,7 +251,7 @@ const d = project.data;
   /* Result */
   .result {
     text-align: center;
-    border-top: 1px solid var(--line);
+    background: var(--bg-alt);
   }
 
   .result-inner {
@@ -267,10 +262,12 @@ const d = project.data;
   }
 
   .result-value {
+    font-family: var(--font-display);
     font-size: clamp(4.5rem, 16vw, 11rem);
     line-height: 1;
-    letter-spacing: -0.05em;
-    font-weight: 660;
+    letter-spacing: -0.02em;
+    font-weight: 600;
+    padding-bottom: 0.04em;
     font-variant-numeric: tabular-nums;
   }
 
@@ -280,7 +277,7 @@ const d = project.data;
 
   /* Next */
   .next-wrap {
-    border-top: 1px solid var(--line);
+    background: var(--bg);
   }
 
   .next {
@@ -291,9 +288,10 @@ const d = project.data;
   }
 
   .next-title {
+    font-family: var(--font-display);
     font-size: clamp(1.75rem, 4vw, 3rem);
-    font-weight: 590;
-    letter-spacing: -0.03em;
+    font-weight: 600;
+    letter-spacing: -0.003em;
     transition: color 0.2s var(--ease);
   }
 

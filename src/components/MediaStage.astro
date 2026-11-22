@@ -41,10 +41,9 @@ const isVideo = (src: string) => src.endsWith('.mp4');
     position: relative;
     width: 100%;
     aspect-ratio: 3 / 2;
-    border-radius: 10px;
+    border-radius: var(--r-xs); /* concentric with the 20px-padded story card */
     overflow: hidden;
-    background: #0b0c0d;
-    border: 1px solid var(--line);
+    background: var(--bg);
   }
 
   .media > * {

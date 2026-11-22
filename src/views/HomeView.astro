@@ -22,25 +22,32 @@ const cardStep: Record<string, number> = { avsr: 0, gesture: 1, hinger: 0, serms
 <Base lang={lang}>
   <Hero lang={lang} />
 
-  <!-- Linear-style statement -->
-  <section class="section statement-wrap">
+  <!-- About: eyebrow, one headline, then copy beside a spec-style list of interests -->
+  <section class="section about" aria-labelledby="about-title">
     <div class="container">
-      <p class="kicker" data-reveal>{profile.interests.join(' · ')}</p>
-      <p class="statement big" data-scrub-words>
-        {copy.statement.lead} <span class="dim">{copy.statement.dim}</span>
-      </p>
+      <p class="eyebrow" data-reveal>{copy.statement.eyebrow}</p>
+      <h2 id="about-title" class="h-1 about-head" data-reveal>{copy.statement.headline}</h2>
+      <div class="about-grid">
+        <p class="copy about-copy" data-scrub-words set:html={copy.statement.body} />
+        <div class="interests" data-reveal>
+          <p class="kicker">{copy.statement.interests}</p>
+          <ul>
+            {profile.interests.map((i) => <li>{i}</li>)}
+          </ul>
+        </div>
+      </div>
     </div>
   </section>
 
-  <!-- Apple-style numbers -->
-  <section class="section stats-wrap" aria-labelledby="stats-title">
+  <!-- Numbers, after Apple's spec blocks -->
+  <section class="section band" aria-labelledby="stats-title">
     <div class="container">
-      <h2 id="stats-title" class="kicker" data-reveal>{copy.stats.kicker}</h2>
+      <h2 id="stats-title" class="eyebrow" data-reveal>{copy.stats.kicker}</h2>
       <ul class="stats">
         {
           copy.stats.items.map((s) => (
             <li class="stat" data-reveal>
-              <span class="stat-value gradient-text" data-count>
+              <span class="stat-value" data-count>
                 {s.value}
               </span>
               <span class="stat-label">{s.label}</span>
@@ -54,7 +61,6 @@ const cardStep: Record<string, number> = { avsr: 0, gesture: 1, hinger: 0, serms
   <!-- Projects -->
   <section class="section" id="projects" aria-labelledby="projects-title">
     <div class="container">
-      <p class="kicker" data-reveal>{copy.projects.kicker}</p>
       <h2 id="projects-title" class="statement head" data-reveal>
         {copy.projects.lead} <span class="dim">{copy.projects.dim}</span>
       </h2>
@@ -72,7 +78,7 @@ const cardStep: Record<string, number> = { avsr: 0, gesture: 1, hinger: 0, serms
               ]}
             >
               <a class="pcard card" href={localePath(`/projects/${p.slug}/`, lang)}>
-                <div class="pcard-visual">
+                <div class="inset">
                   {p.data.visual ? (
                     <ProjectVisual kind={p.data.visual} step={cardStep[p.data.visual] ?? 0} label={p.data.fullTitle} />
                   ) : (
@@ -86,12 +92,8 @@ const cardStep: Record<string, number> = { avsr: 0, gesture: 1, hinger: 0, serms
                   <h3 class="h-3">{p.data.title}</h3>
                   <p class="pcard-tag">{p.data.tagline}</p>
                   <div class="pcard-foot">
-                    <span class="metric">
-                      <b class="gradient-text">{p.data.metric.value}</b>
-                    </span>
-                    <span class="more">
-                      {copy.projects.readMore} <span aria-hidden="true">→</span>
-                    </span>
+                    <span class="metric">{p.data.metric.value}</span>
+                    <span class="more">{copy.projects.readMore} ›</span>
                   </div>
                 </div>
               </a>
@@ -103,9 +105,6 @@ const cardStep: Record<string, number> = { avsr: 0, gesture: 1, hinger: 0, serms
       {
         more.length > 0 && (
           <div class="more-wrap">
-            <p class="kicker" data-reveal>
-              {copy.projects.moreKicker}
-            </p>
             <h3 class="statement head small" data-reveal>
               {copy.projects.moreLead} <span class="dim">{copy.projects.moreDim}</span>
             </h3>
@@ -113,7 +112,7 @@ const cardStep: Record<string, number> = { avsr: 0, gesture: 1, hinger: 0, serms
               {more.map((p) => (
                 <li data-reveal>
                   <a class="mcard card" href={localePath(`/projects/${p.slug}/`, lang)}>
-                    <div class="mcard-visual">
+                    <div class="inset">
                       {p.data.visual ? (
                         <ProjectVisual kind={p.data.visual} step={cardStep[p.data.visual] ?? 0} label={p.data.fullTitle} />
                       ) : (
@@ -124,9 +123,7 @@ const cardStep: Record<string, number> = { avsr: 0, gesture: 1, hinger: 0, serms
                       <p class="kicker">{p.data.kicker}</p>
                       <h4 class="h-3">{p.data.title}</h4>
                       <p class="pcard-tag">{p.data.tagline}</p>
-                      <span class="more">
-                        {copy.projects.readMore} <span aria-hidden="true">→</span>
-                      </span>
+                      <span class="more">{copy.projects.readMore} ›</span>
                     </div>
                   </a>
                 </li>
@@ -138,34 +135,48 @@ const cardStep: Record<string, number> = { avsr: 0, gesture: 1, hinger: 0, serms
     </div>
   </section>
 
-  <!-- Experience -->
-  <section class="section" aria-labelledby="exp-title">
+  <!-- Experience: Apple FAQ-style accordion -->
+  <section class="section band" aria-labelledby="exp-title">
     <div class="container">
-      <p class="kicker" data-reveal>{copy.experience.kicker}</p>
-      <h2 id="exp-title" class="statement head" data-reveal>
-        {copy.experience.lead} <span class="dim">{copy.experience.dim}</span>
-      </h2>
-      <ol class="timeline">
+      <div class="acc-head">
+        <h2 id="exp-title" class="statement head" data-reveal>
+          {copy.experience.lead} <span class="dim">{copy.experience.dim}</span>
+        </h2>
+        <button type="button" class="link acc-toggle" data-acc-toggle data-expand={copy.experience.expandAll} data-collapse={copy.experience.collapseAll}>
+          {copy.experience.expandAll} +
+        </button>
+      </div>
+      <div class="acc" data-acc>
         {
           profile.internships.map((job) => (
-            <li class="row" data-reveal>
-              <span class="row-date">{job.period}</span>
-              <span class="row-main">
-                <span class="row-company">
+            <details class="acc-item" data-reveal>
+              <summary>
+                <span class="acc-title">
                   {job.company}
-                  {job.unit && <span class="row-unit"> · {job.unit}</span>}
+                  {job.unit && <span class="acc-unit"> · {job.unit}</span>}
                 </span>
-                <span class="row-role">
+                <span class="acc-meta">
                   {job.role}
-                  {job.team && <span> · {job.team}</span>}
+                  {job.team && <> · {job.team}</>}
+                  <span class="acc-sep"> · </span>
+                  {job.period} · {job.location}
                 </span>
-              </span>
-              <span class="row-loc">{job.location}</span>
-            </li>
+                <span class="chev round" aria-hidden="true">
+                  <svg viewBox="0 0 20 20" width="16" height="16">
+                    <path d="M5 7.5 10 12.5l5-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                  </svg>
+                </span>
+              </summary>
+              <ul class="acc-body">
+                {job.bullets.map((b) => (
+                  <li>{b}</li>
+                ))}
+              </ul>
+            </details>
           ))
         }
-      </ol>
-      <a class="link-arrow all" href={localePath('/experience/', lang)} data-reveal>
+      </div>
+      <a class="link all" href={localePath('/experience/', lang)} data-reveal>
         {copy.experience.all} ›
       </a>
     </div>
@@ -174,18 +185,18 @@ const cardStep: Record<string, number> = { avsr: 0, gesture: 1, hinger: 0, serms
   <!-- Education -->
   <section class="section" aria-labelledby="edu-title">
     <div class="container">
-      <h2 id="edu-title" class="kicker" data-reveal>{copy.education.kicker}</h2>
+      <h2 id="edu-title" class="eyebrow" data-reveal>{copy.education.kicker}</h2>
       <div class="edu">
         {
           profile.education.map((e) => (
             <article class="edu-card card" data-reveal>
-              <p class="edu-short">{e.short}</p>
+              <p class="edu-short metal">{e.short}</p>
               <h3 class="h-3">{e.school}</h3>
               <p class="edu-degree">{e.degree}</p>
               <p class="edu-meta">
                 {e.dept} · {e.location}
               </p>
-              <p class="edu-meta mono">{e.period}</p>
+              <p class="edu-meta">{e.period}</p>
               <ul class="edu-lines">
                 {e.lines.map((l) => (
                   <li>{l}</li>
@@ -201,76 +212,116 @@ const cardStep: Record<string, number> = { avsr: 0, gesture: 1, hinger: 0, serms
   <!-- Contact -->
   <section class="section contact" aria-labelledby="contact-title">
     <div class="container contact-inner">
-      <div class="contact-aura" aria-hidden="true"></div>
       <h2 id="contact-title" class="h-1" data-reveal>{copy.contact.title}</h2>
       <p class="lead" data-reveal>{copy.contact.sub}</p>
       <div class="contact-cta" data-reveal>
         <a class="btn btn-primary" href={`mailto:${profile.email}`}>{copy.contact.email}</a>
         <a class="btn btn-ghost" href={profile.github} rel="me">GitHub</a>
-        <a class="link-arrow" href={profile.cvFiles[lang]} download>{copy.hero.ctaSecondary} ›</a>
+        <a class="link" href={profile.cvFiles[lang]} download>{copy.hero.ctaSecondary} ›</a>
       </div>
-      <p class="contact-mail mono" data-reveal>{profile.email}</p>
     </div>
   </section>
 </Base>
 
+<script>
+  const toggle = document.querySelector<HTMLButtonElement>('[data-acc-toggle]');
+  const items = Array.from(document.querySelectorAll<HTMLDetailsElement>('[data-acc] details'));
+  const sync = () => {
+    if (!toggle) return;
+    const allOpen = items.every((d) => d.open);
+    toggle.textContent = allOpen ? `${toggle.dataset.collapse} −` : `${toggle.dataset.expand} +`;
+  };
+  toggle?.addEventListener('click', () => {
+    const open = !items.every((d) => d.open);
+    items.forEach((d) => (d.open = open));
+    sync();
+  });
+  items.forEach((d) => d.addEventListener('toggle', sync));
+</script>
+
 <style>
-  .statement-wrap .kicker {
-    margin-bottom: 28px;
+  /* About */
+  .about-head {
+    margin-top: 12px;
+    max-width: 13em;
   }
 
-  .statement.big {
-    max-width: 24em;
+  .about-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+    gap: 40px clamp(40px, 7vw, 96px);
+    margin-top: clamp(40px, 5vw, 64px);
+    align-items: start;
   }
 
-  .statement.big :global(.w) {
-    will-change: opacity;
-  }
-
-  .statement.head {
-    margin-top: 16px;
-    margin-bottom: clamp(40px, 6vw, 64px);
-    font-size: clamp(1.5rem, 3vw, 2.25rem);
+  .about-copy {
+    font-size: clamp(19px, 2vw, 24px);
+    line-height: 1.42;
     max-width: 26em;
   }
 
-  /* Stats */
+  .about-copy :global(.w) {
+    will-change: opacity;
+  }
+
+  .interests ul {
+    list-style: none;
+    margin-top: 12px;
+    border-top: 1px solid var(--line);
+  }
+
+  .interests li {
+    padding: 14px 0;
+    border-bottom: 1px solid var(--line);
+    font-size: 17px;
+    line-height: 1.35;
+    color: var(--text);
+  }
+
+  .statement.head {
+    margin-top: 0;
+    margin-bottom: clamp(40px, 5vw, 64px);
+    max-width: 24em;
+  }
+
+  .statement.head.small {
+    font-size: clamp(1.5rem, 2.6vw, 2rem);
+  }
+
+  /* Stats: white numbers, no rules, generous space */
   .stats {
     list-style: none;
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    margin-top: 40px;
-    border-top: 1px solid var(--line);
+    gap: 48px 32px;
+    margin-top: clamp(40px, 5vw, 64px);
   }
 
   .stat {
     display: flex;
     flex-direction: column;
-    gap: 12px;
-    padding: 32px 24px 8px 0;
-  }
-
-  .stat + .stat {
-    padding-left: 24px;
-    border-left: 1px solid var(--line);
+    gap: 10px;
   }
 
   .stat-value {
-    font-size: clamp(2.75rem, 5.5vw, 4.5rem);
+    font-family: var(--font-display);
+    font-size: clamp(2.75rem, 5.2vw, 4rem);
     line-height: 1;
-    letter-spacing: -0.04em;
-    font-weight: 640;
+    letter-spacing: -0.009em;
+    font-weight: 600;
+    color: var(--text);
     font-variant-numeric: tabular-nums;
   }
 
   .stat-label {
     font-size: 14px;
-    line-height: 1.5;
+    line-height: 1.43;
+    letter-spacing: -0.016em;
     color: var(--muted);
-    max-width: 18em;
+    max-width: 17em;
   }
 
-  /* Project cards */
+  /* Project cards: borderless, visual in an inset panel with concentric corners */
   .cards {
     list-style: none;
     display: grid;
@@ -278,65 +329,81 @@ const cardStep: Record<string, number> = { avsr: 0, gesture: 1, hinger: 0, serms
     gap: 20px;
   }
 
-  .pcard {
+  .pcard,
+  .mcard {
     display: flex;
     flex-direction: column;
     height: 100%;
     overflow: hidden;
-    transition: border-color 0.3s var(--ease), background-color 0.3s var(--ease), transform 0.4s var(--ease);
+    transition:
+      background-color 0.4s var(--ease),
+      transform 0.5s var(--ease);
   }
 
-  .pcard:hover {
-    border-color: var(--line-strong);
-    background: #131416;
+  .pcard:hover,
+  .mcard:hover {
+    background: #232325;
+    transform: scale(1.008);
   }
 
-  .pcard-visual {
-    position: relative;
-    padding: 24px 24px 8px;
-    background:
-      radial-gradient(120% 80% at 50% 0%, rgba(108, 140, 255, 0.08), transparent 60%),
-      linear-gradient(180deg, rgba(255, 255, 255, 0.015), transparent);
-    border-bottom: 1px solid var(--line);
+  .inset {
+    margin: 12px 12px 0;
+    padding: 20px 20px 8px;
+    border-radius: var(--r-inner);
+    background: var(--bg-inset);
+    overflow: hidden;
+  }
+
+  .inset:has(.cover) {
+    padding: 0;
+  }
+
+  .cover {
+    width: 100%;
+    aspect-ratio: 8 / 5;
+    object-fit: cover;
   }
 
   .pcard-body {
     display: flex;
     flex-direction: column;
-    gap: 10px;
-    padding: 24px;
+    gap: 8px;
+    padding: 24px 28px 28px;
     flex: 1;
   }
 
   .pcard-tag {
     color: var(--muted);
-    font-size: 15px;
-    line-height: 1.55;
+    font-size: 17px;
+    line-height: 1.47;
   }
 
   .pcard-foot {
     margin-top: auto;
-    padding-top: 12px;
+    padding-top: 16px;
     display: flex;
-    align-items: center;
+    align-items: baseline;
     justify-content: space-between;
     gap: 16px;
   }
 
-  .metric b {
-    font-size: 22px;
-    font-weight: 640;
-    letter-spacing: -0.02em;
+  .metric {
+    font-family: var(--font-display);
+    font-size: 24px;
+    font-weight: 600;
+    letter-spacing: 0.009em;
+    color: var(--text);
   }
 
   .more {
-    font-size: 14px;
-    color: var(--text-2);
-    transition: color 0.2s var(--ease);
+    font-size: 17px;
+    color: var(--blue);
   }
 
-  .pcard:hover .more {
-    color: var(--blue);
+  .pcard:hover .more,
+  .mcard:hover .more {
+    text-decoration: underline;
+    text-underline-offset: 3px;
   }
 
   .card-item.wide {
@@ -348,12 +415,15 @@ const cardStep: Record<string, number> = { avsr: 0, gesture: 1, hinger: 0, serms
     grid-template-columns: 1.25fr 1fr;
   }
 
-  .card-item.wide .pcard-visual {
-    border-bottom: 0;
-    border-right: 1px solid var(--line);
-    padding: 32px;
+  .card-item.wide .inset {
+    margin: 12px 0 12px 12px;
     display: grid;
     align-items: center;
+    padding: 28px;
+  }
+
+  .card-item.wide .inset:has(.cover) {
+    padding: 0;
   }
 
   .card-item.wide .pcard-body {
@@ -361,41 +431,23 @@ const cardStep: Record<string, number> = { avsr: 0, gesture: 1, hinger: 0, serms
     justify-content: center;
   }
 
+  .card-item.wide .h-3 {
+    font-size: clamp(1.75rem, 2.6vw, 2.25rem);
+    letter-spacing: 0.004em;
+  }
+
   .card-item.wide.flip .pcard {
     grid-template-columns: 1fr 1.25fr;
   }
 
-  .card-item.wide.flip .pcard-visual {
+  .card-item.wide.flip .inset {
     order: 2;
-    border-right: 0;
-    border-left: 1px solid var(--line);
-  }
-
-  .card-item.wide .h-3 {
-    font-size: clamp(1.5rem, 2.4vw, 2rem);
-    letter-spacing: -0.025em;
-  }
-
-  .cover {
-    width: 100%;
-    aspect-ratio: 8 / 5;
-    object-fit: cover;
-    border-radius: 10px;
-    border: 1px solid var(--line);
-  }
-
-  .card-item .pcard-visual:has(.cover) {
-    padding-bottom: 24px;
+    margin: 12px 12px 12px 0;
   }
 
   /* More projects */
   .more-wrap {
-    margin-top: clamp(72px, 10vw, 120px);
-  }
-
-  .statement.head.small {
-    font-size: clamp(1.35rem, 2.4vw, 1.75rem);
-    margin-bottom: 36px;
+    margin-top: clamp(80px, 10vw, 128px);
   }
 
   .mini-cards {
@@ -405,43 +457,20 @@ const cardStep: Record<string, number> = { avsr: 0, gesture: 1, hinger: 0, serms
     gap: 20px;
   }
 
-  .mcard {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    overflow: hidden;
-    transition: border-color 0.3s var(--ease), background-color 0.3s var(--ease);
-  }
-
-  .mcard:hover {
-    border-color: var(--line-strong);
-    background: #131416;
-  }
-
-  .mcard:hover .more {
-    color: var(--blue);
-  }
-
-  .mcard-visual {
-    padding: 16px 16px 0;
-  }
-
-  .mcard-visual :global(.pv) {
-    border-radius: 10px;
-    border: 1px solid var(--line);
-    background: radial-gradient(120% 80% at 50% 0%, rgba(108, 140, 255, 0.08), transparent 60%);
+  .mini-cards .inset {
+    padding: 14px 14px 4px;
   }
 
   .mcard-body {
     display: flex;
     flex-direction: column;
     gap: 8px;
-    padding: 20px;
+    padding: 20px 24px 24px;
     flex: 1;
   }
 
   .mcard-body .pcard-tag {
-    font-size: 14px;
+    font-size: 15px;
     display: -webkit-box;
     -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
@@ -451,59 +480,110 @@ const cardStep: Record<string, number> = { avsr: 0, gesture: 1, hinger: 0, serms
   .mcard-body .more {
     margin-top: auto;
     padding-top: 8px;
+    font-size: 15px;
   }
 
-  /* Timeline */
-  .timeline {
-    list-style: none;
+  /* Experience accordion (Apple FAQ style) */
+  .acc-head {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 24px;
+  }
+
+  .acc-toggle {
+    border: 0;
+    background: none;
+    padding: 0 0 clamp(40px, 5vw, 64px);
+    font: inherit;
+    font-size: 17px;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+
+  .acc {
     border-top: 1px solid var(--line);
   }
 
-  .row {
-    display: grid;
-    grid-template-columns: 180px 1fr auto;
-    gap: 8px 32px;
-    align-items: baseline;
-    padding: 20px 0;
+  .acc-item {
     border-bottom: 1px solid var(--line);
   }
 
-  .row-date {
-    font-family: var(--font-mono);
-    font-size: 13px;
-    color: var(--faint);
+  .acc-item summary {
+    list-style: none;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    gap: 6px 24px;
+    padding: 24px 0;
+    cursor: pointer;
   }
 
-  .row-main {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
+  .acc-item summary::-webkit-details-marker {
+    display: none;
   }
 
-  .row-company {
-    font-weight: 560;
+  .acc-title {
+    font-family: var(--font-display);
+    font-size: clamp(17px, 1.7vw, 21px);
+    line-height: 1.3;
+    letter-spacing: 0.011em;
+    font-weight: 600;
     color: var(--text);
   }
 
-  .row-unit {
-    color: var(--text-2);
-    font-weight: 450;
-  }
-
-  .row-role {
-    font-size: 14px;
+  .acc-unit {
     color: var(--muted);
   }
 
-  .row-loc {
-    font-size: 13px;
+  .acc-meta {
+    grid-column: 1;
+    font-size: 14px;
+    letter-spacing: -0.016em;
+    color: var(--muted);
+  }
+
+  .chev {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    background: var(--fill-control);
+    color: var(--text);
+    transition:
+      transform 0.4s var(--ease),
+      background-color 0.3s var(--ease);
+  }
+
+  .acc-item summary:hover .chev {
+    background: var(--fill-control-hover);
+  }
+
+  .acc-item[open] .chev {
+    transform: rotate(180deg);
+  }
+
+  .acc-body {
+    padding: 0 64px 28px 22px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    color: var(--text-2);
+    font-size: 17px;
+    line-height: 1.5;
+    max-width: 54em;
+  }
+
+  .acc-body li::marker {
     color: var(--faint);
-    white-space: nowrap;
   }
 
   .all {
     display: inline-block;
-    margin-top: 28px;
+    margin-top: 32px;
   }
 
   /* Education */
@@ -515,22 +595,20 @@ const cardStep: Record<string, number> = { avsr: 0, gesture: 1, hinger: 0, serms
   }
 
   .edu-card {
-    padding: 32px;
+    padding: clamp(28px, 3.5vw, 44px);
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 6px;
   }
 
   .edu-short {
-    font-size: clamp(2.5rem, 5vw, 3.5rem);
-    font-weight: 660;
-    letter-spacing: -0.04em;
+    font-family: var(--font-display);
+    font-size: clamp(3rem, 6vw, 4.5rem);
+    font-weight: 600;
+    letter-spacing: -0.01em;
     line-height: 1;
-    margin-bottom: 12px;
-    background: linear-gradient(180deg, #f7f8f8, #62666d);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
+    padding-bottom: 0.06em;
+    margin-bottom: 14px;
   }
 
   .edu-degree {
@@ -539,31 +617,26 @@ const cardStep: Record<string, number> = { avsr: 0, gesture: 1, hinger: 0, serms
 
   .edu-meta {
     font-size: 14px;
+    letter-spacing: -0.016em;
     color: var(--muted);
-  }
-
-  .mono {
-    font-family: var(--font-mono);
-    font-size: 13px;
   }
 
   .edu-lines {
     list-style: none;
-    margin-top: 12px;
+    margin-top: 16px;
     padding-top: 16px;
     border-top: 1px solid var(--line);
     display: flex;
     flex-direction: column;
     gap: 6px;
     font-size: 14px;
+    letter-spacing: -0.016em;
     color: var(--muted);
   }
 
   /* Contact */
   .contact {
     text-align: center;
-    position: relative;
-    overflow: hidden;
   }
 
   .contact-inner {
@@ -571,26 +644,10 @@ const cardStep: Record<string, number> = { avsr: 0, gesture: 1, hinger: 0, serms
     flex-direction: column;
     align-items: center;
     gap: 20px;
-    position: relative;
-  }
-
-  .contact-aura {
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    width: min(760px, 100vw);
-    height: 360px;
-    transform: translate(-50%, -50%);
-    background:
-      radial-gradient(closest-side at 40% 50%, rgba(108, 140, 255, 0.14), transparent),
-      radial-gradient(closest-side at 62% 50%, rgba(255, 107, 181, 0.1), transparent);
-    filter: blur(30px);
-    pointer-events: none;
-    z-index: -1;
   }
 
   .contact .lead {
-    max-width: 34em;
+    max-width: 30em;
   }
 
   .contact-cta {
@@ -598,12 +655,8 @@ const cardStep: Record<string, number> = { avsr: 0, gesture: 1, hinger: 0, serms
     flex-wrap: wrap;
     align-items: center;
     justify-content: center;
-    gap: 14px 20px;
+    gap: 14px 24px;
     margin-top: 8px;
-  }
-
-  .contact-mail {
-    color: var(--faint);
   }
 
   @media (max-width: 900px) {
@@ -611,34 +664,22 @@ const cardStep: Record<string, number> = { avsr: 0, gesture: 1, hinger: 0, serms
       grid-template-columns: repeat(2, 1fr);
     }
 
-    .stat:nth-child(3) {
-      padding-left: 0;
-      border-left: 0;
-    }
-
-    .stat:nth-child(n + 3) {
-      border-top: 1px solid var(--line);
-    }
-
-    .card-item.wide .pcard {
+    .card-item.wide .pcard,
+    .card-item.wide.flip .pcard {
       display: flex;
     }
 
-    .card-item.wide .pcard-visual,
-    .card-item.wide.flip .pcard-visual {
+    .card-item.wide .inset,
+    .card-item.wide.flip .inset {
       order: 0;
-      border-right: 0;
-      border-left: 0;
-      border-bottom: 1px solid var(--line);
-      padding: 24px 24px 8px;
+      margin: 12px 12px 0;
+      padding: 20px 20px 8px;
     }
 
     .card-item.wide .pcard-body {
-      padding: 24px;
+      padding: 24px 28px 28px;
     }
-  }
 
-  @media (max-width: 900px) {
     .mini-cards {
       grid-template-columns: repeat(2, 1fr);
     }
@@ -647,37 +688,40 @@ const cardStep: Record<string, number> = { avsr: 0, gesture: 1, hinger: 0, serms
   @media (max-width: 720px) {
     .cards,
     .edu,
-    .mini-cards {
+    .mini-cards,
+    .about-grid {
       grid-template-columns: 1fr;
     }
 
-    .row {
-      grid-template-columns: 1fr;
-      gap: 6px;
+    .acc-head {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0;
     }
 
-    .row-loc {
-      white-space: normal;
+    .acc-toggle {
+      padding-bottom: 24px;
     }
 
-    .edu-card {
-      padding: 24px;
+    .statement.head {
+      margin-bottom: 24px;
+    }
+
+    .acc-sep {
+      display: block;
+      height: 0;
+      overflow: hidden;
+    }
+
+    .acc-body {
+      padding-right: 8px;
     }
   }
 
   @media (max-width: 480px) {
     .stats {
       grid-template-columns: 1fr;
-    }
-
-    .stat,
-    .stat + .stat {
-      padding: 24px 0 8px;
-      border-left: 0;
-    }
-
-    .stat + .stat {
-      border-top: 1px solid var(--line);
+      gap: 36px;
     }
   }
 </style>

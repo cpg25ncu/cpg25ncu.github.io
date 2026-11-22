@@ -10,7 +10,7 @@ interface Props {
 const { name } = Astro.props;
 ---
 
-<div class="avatar">
+<div class="avatar round">
   {AVATAR ? <img src={AVATAR} alt={name} width="160" height="160" /> : <span aria-hidden="true">TL</span>}
 </div>
 
@@ -21,8 +21,7 @@ const { name } = Astro.props;
     aspect-ratio: 1;
     border-radius: 50%;
     padding: 2px;
-    background: var(--gradient);
-    box-shadow: 0 0 60px rgba(179, 107, 255, 0.25);
+    background: var(--line);
   }
 
   .avatar img,
@@ -30,6 +29,7 @@ const { name } = Astro.props;
     width: 100%;
     height: 100%;
     border-radius: 50%;
+    corner-shape: round;
     object-fit: cover;
   }
 
@@ -38,8 +38,9 @@ const { name } = Astro.props;
     place-items: center;
     background: var(--bg-card);
     font-size: clamp(2rem, 4vw, 3.25rem);
-    font-weight: 640;
-    letter-spacing: -0.04em;
+    font-family: var(--font-display);
+    font-weight: 600;
+    letter-spacing: -0.01em;
     color: var(--text);
   }
 </style>

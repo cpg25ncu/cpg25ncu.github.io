@@ -9,40 +9,61 @@ interface Props {
 const { lang } = Astro.props;
 const copy = t(lang).hero;
 const profile = cv[lang];
+// Must match POSES in src/scripts/hand-scene.ts (MediaPipe Gesture Recognizer category names)
+const gestures = ['Open_Palm', 'Victory', 'ILoveYou', 'Pointing_Up', 'Closed_Fist'];
 ---
 
 <section class="hero">
   <div class="container hero-text">
-    <p class="kicker rise" style="--d:0">{copy.kicker}</p>
+    <p class="eyebrow rise" style="--d:0">{copy.kicker}</p>
     <h1 class="h-display rise" style="--d:1">{copy.name}</h1>
-    <p class="glow rise" style="--d:2">
-      <span class="glow-blur gradient-text" aria-hidden="true">{copy.glow}</span>
-      <span class="gradient-text">{copy.glow}</span>
-    </p>
+    <p class="tagline metal rise" style="--d:2">{copy.glow}</p>
   </div>
 
   <div class="stage rise" style="--d:3" data-hand-stage>
-    <div class="aura" aria-hidden="true"></div>
+    <div class="spot" aria-hidden="true"></div>
     <canvas aria-hidden="true"></canvas>
-    <div class="hud" aria-hidden="true">
-      <span class="hud-tl">{copy.hudLeft}</span>
-      <span class="hud-tr">{copy.hudGesture}: <b data-gesture-label>Open_Palm</b></span>
-      <i class="corner c1"></i><i class="corner c2"></i><i class="corner c3"></i><i class="corner c4"></i>
-    </div>
+    <div class="frame" aria-hidden="true"><i class="c c1"></i><i class="c c2"></i><i class="c c3"></i><i class="c c4"></i></div>
   </div>
 
-  <div class="container hero-foot rise" style="--d:4">
-    <p class="lead">{copy.sub}</p>
+  <div class="swatches rise" style="--d:4">
+    <div class="dots" role="radiogroup" aria-label={copy.gestureLabel}>
+      {
+        gestures.map((g, i) => (
+          <button type="button" role="radio" aria-checked={i === 0 ? 'true' : 'false'} aria-label={g} data-pose={i} class:list={['dot', 'round', { on: i === 0 }]}>
+            <span class="round" />
+          </button>
+        ))
+      }
+    </div>
+    <p class="caption"><span data-gesture-label>{gestures[0]}</span> · {copy.hudLeft}</p>
+  </div>
+
+  <div class="container hero-foot rise" style="--d:5">
+    <p class="copy" set:html={copy.sub} />
     <div class="cta">
       <a class="btn btn-primary" href="#projects">{copy.ctaPrimary}</a>
-      <a class="link-arrow" href={profile.cvFiles[lang]} download>{copy.ctaSecondary} ›</a>
+      <a class="link" href={profile.cvFiles[lang]} download>{copy.ctaSecondary} ›</a>
     </div>
   </div>
 </section>
 
 <script>
   const stage = document.querySelector<HTMLElement>('[data-hand-stage]');
+  const label = document.querySelector<HTMLElement>('[data-gesture-label]');
+  const dots = Array.from(document.querySelectorAll<HTMLButtonElement>('[data-pose]'));
   if (stage) {
+    stage.addEventListener('pose', (e) => {
+      const { index, name } = (e as CustomEvent<{ index: number; name: string }>).detail;
+      if (label) label.textContent = name;
+      dots.forEach((d, i) => {
+        d.classList.toggle('on', i === index);
+        d.setAttribute('aria-checked', String(i === index));
+      });
+    });
+    dots.forEach((d) =>
+      d.addEventListener('click', () => stage.dispatchEvent(new CustomEvent('pose:goto', { detail: Number(d.dataset.pose) }))),
+    );
     const start = () => import('../scripts/hand-scene').then((m) => m.mountHandScene(stage));
     if ('requestIdleCallback' in window) requestIdleCallback(start, { timeout: 600 });
     else setTimeout(start, 200);
@@ -51,57 +72,37 @@ const profile = cv[lang];
 
 <style>
   .hero {
-    position: relative;
-    padding-top: clamp(48px, 9vh, 96px);
-    padding-bottom: clamp(56px, 8vw, 96px);
+    padding-top: clamp(40px, 7vh, 88px);
+    padding-bottom: clamp(72px, 10vw, 120px);
+    text-align: center;
     overflow: hidden;
   }
 
   .hero-text {
-    text-align: center;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 14px;
-    position: relative;
-    z-index: 2;
+    gap: 12px;
   }
 
-  .glow {
-    position: relative;
-    font-size: clamp(1.6rem, 4.6vw, 3.4rem);
-    line-height: 1.12;
-    letter-spacing: -0.03em;
+  .tagline {
+    font-family: var(--font-display);
+    font-size: clamp(1.75rem, 4.4vw, 3.5rem);
+    line-height: 1.1;
+    letter-spacing: -0.005em;
     font-weight: 600;
-    margin-top: 4px;
+    padding-bottom: 0.08em; /* keep descenders inside the clipped gradient */
+    text-wrap: balance;
   }
 
-  :global(html:lang(zh-CN)) .glow {
+  :global(html:lang(zh-CN)) .tagline {
     letter-spacing: 0.02em;
-  }
-
-  .glow-blur {
-    position: absolute;
-    inset: 0;
-    filter: blur(22px);
-    opacity: 0.75;
-    animation: glow 6s ease-in-out infinite;
-  }
-
-  @keyframes glow {
-    0%,
-    100% {
-      opacity: 0.55;
-    }
-    50% {
-      opacity: 0.9;
-    }
   }
 
   .stage {
     position: relative;
-    height: clamp(340px, 52vh, 580px);
-    margin-top: clamp(8px, 2vh, 24px);
+    height: clamp(380px, 56vh, 640px);
+    margin-top: clamp(28px, 5vh, 56px);
   }
 
   .stage canvas {
@@ -110,67 +111,41 @@ const profile = cv[lang];
     width: 100%;
     height: 100%;
     opacity: 0;
-    transition: opacity 1.2s var(--ease);
+    transition: opacity 1.4s var(--ease);
   }
 
   .stage:global(.ready) canvas {
     opacity: 1;
   }
 
-  .aura {
+  /* neutral spotlight, like product-shot lighting */
+  .spot {
     position: absolute;
     left: 50%;
-    top: 50%;
-    width: min(720px, 90vw);
-    height: min(420px, 60vw);
+    top: 52%;
+    width: min(760px, 96vw);
+    height: min(560px, 80vw);
     transform: translate(-50%, -50%);
-    background:
-      radial-gradient(closest-side at 35% 55%, rgba(94, 231, 255, 0.16), transparent),
-      radial-gradient(closest-side at 55% 45%, rgba(179, 107, 255, 0.18), transparent),
-      radial-gradient(closest-side at 70% 60%, rgba(255, 107, 181, 0.12), transparent);
-    filter: blur(20px);
+    background: radial-gradient(closest-side, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.02) 55%, transparent);
     pointer-events: none;
   }
 
-  .hud {
+  /* quiet detection-box corners */
+  .frame {
     position: absolute;
     left: 50%;
     top: 50%;
-    width: min(560px, 82vw);
-    height: 86%;
+    width: min(540px, 84vw);
+    height: 90%;
     transform: translate(-50%, -50%);
     pointer-events: none;
-    font-family: var(--font-mono);
-    font-size: 11px;
-    letter-spacing: 0.06em;
-    color: var(--faint);
   }
 
-  .hud-tl {
+  .c {
     position: absolute;
-    left: 0;
-    top: -22px;
-    text-transform: uppercase;
-  }
-
-  .hud-tr {
-    position: absolute;
-    right: 0;
-    top: -22px;
-  }
-
-  .hud-tr b {
-    color: var(--g1);
-    font-weight: 500;
-  }
-
-  .corner {
-    position: absolute;
-    width: 18px;
-    height: 18px;
-    border-color: rgba(94, 231, 255, 0.45);
-    border-style: solid;
-    border-width: 0;
+    width: 22px;
+    height: 22px;
+    border: 0 solid var(--line);
   }
 
   .c1 {
@@ -178,6 +153,7 @@ const profile = cv[lang];
     top: 0;
     border-left-width: 1.5px;
     border-top-width: 1.5px;
+    border-top-left-radius: 6px;
   }
 
   .c2 {
@@ -185,6 +161,7 @@ const profile = cv[lang];
     top: 0;
     border-right-width: 1.5px;
     border-top-width: 1.5px;
+    border-top-right-radius: 6px;
   }
 
   .c3 {
@@ -192,6 +169,7 @@ const profile = cv[lang];
     bottom: 0;
     border-left-width: 1.5px;
     border-bottom-width: 1.5px;
+    border-bottom-left-radius: 6px;
   }
 
   .c4 {
@@ -199,25 +177,84 @@ const profile = cv[lang];
     bottom: 0;
     border-right-width: 1.5px;
     border-bottom-width: 1.5px;
+    border-bottom-right-radius: 6px;
   }
 
-  .stage:global(.no-webgl) .hud {
+  .stage:global(.no-webgl) .frame {
     display: none;
+  }
+
+  /* Apple-style swatch picker */
+  .swatches {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+    margin-top: 8px;
+  }
+
+  .dots {
+    display: flex;
+    gap: 8px;
+  }
+
+  .dot {
+    width: 32px;
+    height: 32px;
+    display: grid;
+    place-items: center;
+    padding: 0;
+    border: 0;
+    background: none;
+    border-radius: 50%;
+    cursor: pointer;
+  }
+
+  .dot span {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--faint);
+    box-shadow:
+      0 0 0 3px var(--bg),
+      0 0 0 4px transparent;
+    transition:
+      background-color 0.3s var(--ease),
+      box-shadow 0.3s var(--ease);
+  }
+
+  .dot:hover span {
+    background: var(--muted);
+  }
+
+  .dot.on span {
+    background: var(--text);
+    box-shadow:
+      0 0 0 3px var(--bg),
+      0 0 0 4.5px var(--muted);
+  }
+
+  .caption {
+    font-size: 12px;
+    letter-spacing: -0.01em;
+    color: var(--muted);
+  }
+
+  .caption span {
+    color: var(--text);
+    font-weight: 600;
   }
 
   .hero-foot {
     display: flex;
     flex-direction: column;
     align-items: center;
-    text-align: center;
-    gap: 24px;
-    margin-top: clamp(16px, 3vh, 32px);
-    position: relative;
-    z-index: 2;
+    gap: 28px;
+    margin-top: clamp(40px, 6vh, 64px);
   }
 
-  .hero-foot .lead {
-    max-width: 40em;
+  .hero-foot .copy {
+    max-width: 30em;
   }
 
   .cta {
@@ -225,30 +262,19 @@ const profile = cv[lang];
     flex-wrap: wrap;
     align-items: center;
     justify-content: center;
-    gap: 16px 28px;
+    gap: 16px 32px;
   }
 
   /* Entrance (CSS only, so the hero never waits on JS) */
   .rise {
-    animation: rise 1.1s var(--ease) both;
-    animation-delay: calc(var(--d) * 0.12s + 0.1s);
+    animation: rise 1.2s var(--ease-out) both;
+    animation-delay: calc(var(--d) * 0.1s + 0.1s);
   }
 
   @keyframes rise {
     from {
       opacity: 0;
-      transform: translateY(18px);
-    }
-  }
-
-  @media (max-width: 560px) {
-    .hud-tl {
-      display: none;
-    }
-
-    .hud-tr {
-      left: 0;
-      right: auto;
+      transform: translateY(20px);
     }
   }
 </style>
