@@ -43,7 +43,9 @@ const alternate = new URL(alternatePath(path, lang), Astro.site);
     <link rel="alternate" hreflang={languages[lang].htmlLang} href={canonical} />
     <link rel="alternate" hreflang={languages[other].htmlLang} href={alternate} />
     <link rel="alternate" hreflang="x-default" href={new URL(lang === 'en' ? path : alternatePath(path, lang), Astro.site)} />
+    <link rel="icon" href="/favicon.ico" sizes="48x48" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <meta property="og:type" content="website" />
     <meta property="og:title" content={pageTitle} />
     <meta property="og:description" content={desc} />
