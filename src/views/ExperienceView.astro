@@ -1,6 +1,5 @@
 ---
 import Base from '../layouts/Base.astro';
-import Avatar from '../components/Avatar.astro';
 import { t, type Lang } from '../i18n/ui';
 import { cv } from '../data/cv';
 
@@ -20,14 +19,18 @@ const toc = [
   ['skills', s.skills],
   ['activities', s.activities],
 ] as const;
+
+// Long Chinese company names may only wrap after 有限公司 (中国石油化工股份有限公司 | 华东油气分公司)
+const nameParts = (name: string) => {
+  const i = name.indexOf('有限公司') + 4;
+  return i > 4 && i < name.length ? [name.slice(0, i), name.slice(i)] : [name];
+};
 ---
 
 <Base lang={lang} title={copy.title} description={copy.intro}>
   <header class="x-hero">
     <div class="container x-hero-inner">
-      <Avatar name={profile.name} />
-      <p class="kicker">{copy.kicker}</p>
-      <h1 class="h-display x-name">{profile.name}</h1>
+      <h1 class="h-display">{profile.name}</h1>
       <p class="x-summary">{copy.summary}{lang === 'en' && ' '}<span class="dim">{copy.summaryDim}</span></p>
       <div class="x-cta">
         <a class="btn btn-primary" href={profile.cvFiles.en} download>{copy.downloadPrimary}</a>
@@ -100,9 +103,9 @@ const toc = [
           profile.internships.map((j) => (
             <article class="entry" data-reveal>
               <div class="entry-head">
-                <h3 class="h-3">
-                  {j.company}
-                  {j.unit && <span class="unit"> · {j.unit}</span>}
+                <h3 class="h-3 company">
+                  {nameParts(j.company).map((part, k) => (k ? <><wbr />{part}</> : part))}
+                  {j.unit && <span class="unit unit-line">{j.unit}</span>}
                 </h3>
                 <span class="entry-date">{j.period}</span>
               </div>
@@ -195,19 +198,6 @@ const toc = [
     text-align: center;
   }
 
-  .x-hero-inner :global(.avatar) {
-    width: clamp(80px, 8vw, 104px);
-    margin-bottom: 24px;
-  }
-
-  .x-hero-inner :global(.avatar span) {
-    font-size: clamp(1.625rem, 2.6vw, 2.25rem);
-  }
-
-  .x-name {
-    margin-top: 6px;
-  }
-
   .x-summary {
     margin-top: 18px;
     max-width: 40em;
@@ -247,7 +237,7 @@ const toc = [
   /* spec strip: four cells between hairlines */
   .x-info {
     display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: repeat(4, auto); /* columns follow their content, so the email never truncates */
     margin-top: clamp(56px, 8vw, 96px);
     border-block: 1px solid var(--line);
   }
@@ -347,6 +337,19 @@ const toc = [
   .unit {
     color: var(--text-2);
     font-weight: 450;
+  }
+
+  /* Chinese names break only at the hint above; anywhere else only if a part cannot fit */
+  :global(html:lang(zh-CN)) .company {
+    word-break: keep-all;
+    overflow-wrap: anywhere;
+  }
+
+  /* department under the company: its own line, so long company names never break mid-word */
+  .unit-line {
+    display: block;
+    margin-top: 4px;
+    color: var(--muted);
   }
 
   .entry-date {
