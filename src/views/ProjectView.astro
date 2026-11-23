@@ -311,7 +311,8 @@ const d = project.data;
     }
   }
 
-  @media (max-width: 900px) {
+  /* Phones held upright: stack, with the visual pinned under the nav */
+  @media (max-width: 900px) and (orientation: portrait) {
     .story-grid {
       grid-template-columns: 1fr;
     }
@@ -341,6 +342,65 @@ const d = project.data;
 
     .chapter:last-child {
       padding-bottom: 30vh;
+    }
+  }
+
+  /* Phones held sideways: keep visual and text side by side, sized to the short screen */
+  @media (orientation: landscape) and (max-height: 540px) {
+    .story {
+      padding-block: 32px;
+    }
+
+    .story-grid {
+      gap: 28px;
+    }
+
+    .stage-card {
+      top: calc(var(--nav-h) + 16px);
+      padding: 12px;
+    }
+
+    .stage-top {
+      margin-bottom: 8px;
+    }
+
+    /* never taller than the space under the nav */
+    .stage-card :global(.pv) {
+      width: auto;
+      max-width: 100%;
+      max-height: calc(100svh - var(--nav-h) - 88px);
+      margin-inline: auto;
+    }
+
+    .stage-card :global(.media) {
+      border-radius: var(--r-inner); /* concentric with the 12px padding */
+    }
+
+    .chapter {
+      min-height: 72svh;
+      gap: 12px;
+    }
+
+    .chapter:first-child {
+      min-height: 56svh;
+      padding-top: 0;
+    }
+
+    .chapter:last-child {
+      min-height: 80svh;
+    }
+
+    .chapter .h-2 {
+      font-size: 1.5rem;
+    }
+
+    .chapter-body {
+      font-size: 15px;
+      line-height: 1.6;
+    }
+
+    :global(html:lang(zh-CN)) .chapter-body {
+      line-height: 1.75;
     }
   }
 </style>
