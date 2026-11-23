@@ -26,23 +26,36 @@ const toc = [
   <header class="x-hero">
     <div class="container x-hero-inner">
       <Avatar name={profile.name} />
-      <div class="x-id">
-        <p class="kicker">{copy.title}</p>
-        <h1 class="h-1">{profile.name}</h1>
-        <p class="lead">{copy.intro}</p>
-        <ul class="chips">
-          {profile.interests.map((i) => <li class="chip">{i}</li>)}
-        </ul>
-        <div class="x-cta">
-          <a class="btn btn-primary" href={profile.cvFiles.en} download>{copy.downloadEn}</a>
-          <a class="btn btn-ghost" href={profile.cvFiles.zh} download>{copy.downloadZh}</a>
-        </div>
-        <p class="x-contact">
-          <span>{profile.location}</span>
-          <a href={`mailto:${profile.email}`}>{profile.email}</a>
-          <a href={profile.github} rel="me">{profile.githubLabel}</a>
-        </p>
+      <p class="kicker">{copy.kicker}</p>
+      <h1 class="h-display x-name">{profile.name}</h1>
+      <p class="x-summary">{copy.summary}{lang === 'en' && ' '}<span class="dim">{copy.summaryDim}</span></p>
+      <div class="x-cta">
+        <a class="btn btn-primary" href={profile.cvFiles.en} download>{copy.downloadPrimary}</a>
+        <a class="link x-alt" href={profile.cvFiles.zh} download>
+          {copy.downloadAlt}
+          <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M8 2.5v8m0 0L4.5 7M8 10.5 11.5 7M3 13.5h10" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" /></svg>
+        </a>
       </div>
+    </div>
+    <div class="container">
+      <dl class="x-info">
+        <div>
+          <dt>{copy.info.location}</dt>
+          <dd>{profile.location}</dd>
+        </div>
+        <div>
+          <dt>{copy.info.education}</dt>
+          <dd>{copy.eduShort}</dd>
+        </div>
+        <div>
+          <dt>{copy.info.email}</dt>
+          <dd><a href={`mailto:${profile.email}`}>{profile.email}</a></dd>
+        </div>
+        <div>
+          <dt>{copy.info.github}</dt>
+          <dd><a href={profile.github} rel="me">{profile.githubLabel.replace('github.com/', '')}</a></dd>
+        </div>
+      </dl>
     </div>
   </header>
 
@@ -172,40 +185,109 @@ const toc = [
 
 <style>
   .x-hero {
-    padding-block: clamp(48px, 8vw, 96px);
-    background: var(--bg-alt);
+    padding-top: clamp(56px, 9vw, 112px);
   }
 
   .x-hero-inner {
     display: flex;
-    gap: clamp(24px, 5vw, 56px);
-    align-items: flex-start;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
   }
 
-  .x-id {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-    min-width: 0;
+  .x-hero-inner :global(.avatar) {
+    width: clamp(80px, 8vw, 104px);
+    margin-bottom: 24px;
+  }
+
+  .x-hero-inner :global(.avatar span) {
+    font-size: clamp(1.625rem, 2.6vw, 2.25rem);
+  }
+
+  .x-name {
+    margin-top: 6px;
+  }
+
+  .x-summary {
+    margin-top: 18px;
+    max-width: 40em;
+    font-family: var(--font-display);
+    font-size: clamp(19px, 2vw, 24px);
+    line-height: 1.33;
+    font-weight: 600;
+    letter-spacing: 0.009em;
+    color: var(--text);
+    text-wrap: balance;
+  }
+
+  .x-summary .dim {
+    color: var(--muted);
+  }
+
+  :global(html:lang(zh-CN)) .x-summary {
+    letter-spacing: 0;
+    line-height: 1.5;
   }
 
   .x-cta {
     display: flex;
     flex-wrap: wrap;
-    gap: 12px;
-    margin-top: 8px;
+    align-items: center;
+    justify-content: center;
+    gap: 14px 28px;
+    margin-top: 30px;
   }
 
-  .x-contact {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px 20px;
-    font-size: 14px;
+  .x-alt {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  /* spec strip: four cells between hairlines */
+  .x-info {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    margin-top: clamp(56px, 8vw, 96px);
+    border-block: 1px solid var(--line);
+  }
+
+  .x-info div {
+    padding: 18px 24px;
+    min-width: 0;
+  }
+
+  .x-info div:first-child {
+    padding-left: 0;
+  }
+
+  .x-info div + div {
+    border-left: 1px solid var(--line);
+  }
+
+  .x-info dt {
+    font-size: 12px;
+    line-height: 1.33;
     color: var(--muted);
   }
 
-  .x-contact a:hover {
+  .x-info dd {
+    margin: 4px 0 0;
+    font-size: 17px;
+    line-height: 1.35;
     color: var(--text);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .x-info a {
+    color: var(--blue);
+  }
+
+  .x-info a:hover {
+    text-decoration: underline;
+    text-underline-offset: 3px;
   }
 
   .x-body {
@@ -352,11 +434,44 @@ const toc = [
     }
   }
 
-  @media (max-width: 640px) {
-    .x-hero-inner {
-      flex-direction: column;
+  /* narrow: break between the two sentences, never inside one */
+  @media (max-width: 900px) {
+    .x-summary .dim {
+      display: block;
+    }
+  }
+
+  /* phones: the strip becomes label / value rows, like a settings list */
+  @media (max-width: 760px) {
+    .x-info {
+      grid-template-columns: minmax(0, 1fr);
     }
 
+    .x-info div {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 16px;
+      padding: 14px 0;
+    }
+
+    .x-info div + div {
+      border-left: 0;
+      border-top: 1px solid var(--line);
+    }
+
+    .x-info dt {
+      flex-shrink: 0;
+      font-size: 15px;
+    }
+
+    .x-info dd {
+      margin: 0;
+      font-size: 15px;
+    }
+  }
+
+  @media (max-width: 640px) {
     .entry-head,
     .list li {
       flex-direction: column;
