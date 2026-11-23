@@ -33,32 +33,12 @@ const nameParts = (name: string) => {
       <h1 class="h-display">{profile.name}</h1>
       <p class="x-summary">{copy.summary}{lang === 'en' && ' '}<span class="dim">{copy.summaryDim}</span></p>
       <div class="x-cta">
-        <a class="btn btn-primary" href={profile.cvFiles.en} download>{copy.downloadPrimary}</a>
-        <a class="link x-alt" href={profile.cvFiles.zh} download>
+        <a class="btn btn-primary" href={profile.cvFiles[lang]} download>{copy.downloadPrimary}</a>
+        <a class="link x-alt" href={profile.cvFiles[lang === 'en' ? 'zh' : 'en']} download>
           {copy.downloadAlt}
           <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M8 2.5v8m0 0L4.5 7M8 10.5 11.5 7M3 13.5h10" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" /></svg>
         </a>
       </div>
-    </div>
-    <div class="container">
-      <dl class="x-info">
-        <div>
-          <dt>{copy.info.location}</dt>
-          <dd>{profile.location}</dd>
-        </div>
-        <div>
-          <dt>{copy.info.education}</dt>
-          <dd>{copy.eduShort}</dd>
-        </div>
-        <div>
-          <dt>{copy.info.email}</dt>
-          <dd><a href={`mailto:${profile.email}`}>{profile.email}</a></dd>
-        </div>
-        <div>
-          <dt>{copy.info.github}</dt>
-          <dd><a href={profile.github} rel="me">{profile.githubLabel.replace('github.com/', '')}</a></dd>
-        </div>
-      </dl>
     </div>
   </header>
 
@@ -234,52 +214,6 @@ const nameParts = (name: string) => {
     gap: 5px;
   }
 
-  /* spec strip: four cells between hairlines */
-  .x-info {
-    display: grid;
-    grid-template-columns: repeat(4, auto); /* columns follow their content, so the email never truncates */
-    margin-top: clamp(56px, 8vw, 96px);
-    border-block: 1px solid var(--line);
-  }
-
-  .x-info div {
-    padding: 18px 24px;
-    min-width: 0;
-  }
-
-  .x-info div:first-child {
-    padding-left: 0;
-  }
-
-  .x-info div + div {
-    border-left: 1px solid var(--line);
-  }
-
-  .x-info dt {
-    font-size: 12px;
-    line-height: 1.33;
-    color: var(--muted);
-  }
-
-  .x-info dd {
-    margin: 4px 0 0;
-    font-size: 17px;
-    line-height: 1.35;
-    color: var(--text);
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  .x-info a {
-    color: var(--blue);
-  }
-
-  .x-info a:hover {
-    text-decoration: underline;
-    text-underline-offset: 3px;
-  }
-
   .x-body {
     display: grid;
     grid-template-columns: 200px minmax(0, 1fr);
@@ -441,36 +375,6 @@ const nameParts = (name: string) => {
   @media (max-width: 900px) {
     .x-summary .dim {
       display: block;
-    }
-  }
-
-  /* phones: the strip becomes label / value rows, like a settings list */
-  @media (max-width: 760px) {
-    .x-info {
-      grid-template-columns: minmax(0, 1fr);
-    }
-
-    .x-info div {
-      display: flex;
-      justify-content: space-between;
-      align-items: baseline;
-      gap: 16px;
-      padding: 14px 0;
-    }
-
-    .x-info div + div {
-      border-left: 0;
-      border-top: 1px solid var(--line);
-    }
-
-    .x-info dt {
-      flex-shrink: 0;
-      font-size: 15px;
-    }
-
-    .x-info dd {
-      margin: 0;
-      font-size: 15px;
     }
   }
 

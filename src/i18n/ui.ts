@@ -102,8 +102,6 @@ export const ui = {
       summaryDim: 'Master’s student at NUS.',
       downloadPrimary: 'Download CV',
       downloadAlt: 'Chinese CV (PDF)',
-      info: { location: 'Based in', education: 'Education', email: 'Email', github: 'GitHub' },
-      eduShort: 'NUS · UEA',
     },
     footer: {
       explore: 'Explore',
@@ -198,10 +196,8 @@ export const ui = {
       modules: '主修课程',
       summary: '计算机视觉与多模态学习。',
       summaryDim: '新加坡国立大学软件工程硕士在读。',
-      downloadPrimary: '下载英文简历',
-      downloadAlt: '中文简历 PDF',
-      info: { location: '现居', education: '教育', email: '邮箱', github: 'GitHub' },
-      eduShort: 'NUS · UEA',
+      downloadPrimary: '下载中文简历',
+      downloadAlt: '英文简历 PDF',
     },
     footer: {
       explore: '浏览',
