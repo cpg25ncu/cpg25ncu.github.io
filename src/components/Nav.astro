@@ -639,8 +639,16 @@ const thumbStep: Record<string, number> = { avsr: 0, gesture: 1, hinger: 0, serm
       color: var(--muted);
     }
 
+    /* two aligned columns, but a label too long for half the row (e.g. "Test scores & certifications")
+       takes a row of its own instead of widening the sheet */
     .sections {
-      grid-template-columns: repeat(2, max-content);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 24px;
+    }
+
+    .sections :global(li) {
+      min-width: calc(50% - 12px);
     }
   }
 </style>
