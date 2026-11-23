@@ -300,7 +300,9 @@ ol {
   width: 100%;
   max-width: calc(var(--maxw) + var(--gutter) * 2);
   margin-inline: auto;
-  padding-inline: var(--gutter);
+  /* backgrounds run edge to edge (viewport-fit=cover); content stays clear of the notch */
+  padding-left: max(var(--gutter), env(safe-area-inset-left));
+  padding-right: max(var(--gutter), env(safe-area-inset-right));
 }
 
 .container.wide {

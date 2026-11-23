@@ -37,7 +37,7 @@ const thumbStep: Record<string, number> = { avsr: 0, gesture: 1, hinger: 0, serm
 </header>
 
 <dialog class="sheet" data-explore aria-label={n.explore}>
-  <div class="sheet-inner">
+  <div class="sheet-inner" tabindex="-1" autofocus>
     <form method="dialog">
       <button class="close round" aria-label={n.close}>
         <svg viewBox="0 0 20 20" width="16" height="16" aria-hidden="true"><path d="M5 5l10 10M15 5 5 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" /></svg>
@@ -190,6 +190,8 @@ const thumbStep: Record<string, number> = { avsr: 0, gesture: 1, hinger: 0, serm
     buildSections();
     markAppearance();
     sheet.showModal();
+    // Focus the sheet body rather than its first button, so touch devices don't ring the close button.
+    sheet.querySelector<HTMLElement>('.sheet-inner')?.focus({ preventScroll: true });
     prow?.querySelector('[aria-current="page"]')?.scrollIntoView({ block: 'nearest', inline: 'center' });
     syncProwArrow();
   });
@@ -216,7 +218,7 @@ const thumbStep: Record<string, number> = { avsr: 0, gesture: 1, hinger: 0, serm
     position: sticky;
     top: 0;
     z-index: 50;
-    padding: 10px 12px;
+    padding: max(10px, env(safe-area-inset-top)) max(12px, env(safe-area-inset-right)) 10px max(12px, env(safe-area-inset-left));
     pointer-events: none;
   }
 
@@ -311,6 +313,7 @@ const thumbStep: Record<string, number> = { avsr: 0, gesture: 1, hinger: 0, serm
 
   .sheet-inner {
     position: relative;
+    outline: none;
     padding: clamp(28px, 4vw, 56px) clamp(20px, 5vw, 72px) clamp(28px, 4vw, 52px);
   }
 

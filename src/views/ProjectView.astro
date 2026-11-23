@@ -320,8 +320,9 @@ const d = project.data;
       position: sticky;
       top: var(--nav-h);
       z-index: 2;
-      margin-inline: calc(var(--gutter) * -1);
-      padding: 12px var(--gutter);
+      margin-left: calc(-1 * max(var(--gutter), env(safe-area-inset-left)));
+      margin-right: calc(-1 * max(var(--gutter), env(safe-area-inset-right)));
+      padding: 12px max(var(--gutter), env(safe-area-inset-right)) 12px max(var(--gutter), env(safe-area-inset-left));
       background: linear-gradient(180deg, var(--bg) 85%, transparent);
     }
 

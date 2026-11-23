@@ -1,13 +1,14 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 208 208">
   <!-- TL mark on a 5×5 grid of 22px strokes; follows the browser's light / dark appearance -->
   <style>
-    .tile { fill: #19191c; }
-    .mark { fill: #f1f0f3; }
-    .dot { fill: #238dfc; }
+    /* contrast with the tab bar: light tile on dark browsers, dark tile on light browsers */
+    .tile { fill: #efeff1; }
+    .mark { fill: #1e1d1f; }
+    .dot { fill: #1684fc; }
     @media (prefers-color-scheme: light) {
-      .tile { fill: #efeff1; }
-      .mark { fill: #1e1d1f; }
-      .dot { fill: #1684fc; }
+      .tile { fill: #19191c; }
+      .mark { fill: #f1f0f3; }
+      .dot { fill: #238dfc; }
     }
   </style>
   <rect class="tile" width="208" height="208" rx="26" />
