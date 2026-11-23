@@ -20,7 +20,7 @@ const toc = [
   ['activities', s.activities],
 ] as const;
 
-// Long Chinese company names may only wrap after 有限公司 (中国石油化工股份有限公司 | 华东油气分公司)
+// Long Chinese company names may only wrap after 有限公司 (中国石油化工股份有限公司 | 华东油气分公司), never mid-word
 const nameParts = (name: string) => {
   const i = name.indexOf('有限公司') + 4;
   return i > 4 && i < name.length ? [name.slice(0, i), name.slice(i)] : [name];
@@ -85,7 +85,7 @@ const nameParts = (name: string) => {
               <div class="entry-head">
                 <h3 class="h-3 company">
                   {nameParts(j.company).map((part, k) => (k ? <><wbr />{part}</> : part))}
-                  {j.unit && <span class="unit unit-line">{j.unit}</span>}
+                  {j.unit && <span class="unit">{'\u00a0'}· {j.unit}</span>}
                 </h3>
                 <span class="entry-date">{j.period}</span>
               </div>
@@ -277,13 +277,6 @@ const nameParts = (name: string) => {
   :global(html:lang(zh-CN)) .company {
     word-break: keep-all;
     overflow-wrap: anywhere;
-  }
-
-  /* department under the company: its own line, so long company names never break mid-word */
-  .unit-line {
-    display: block;
-    margin-top: 4px;
-    color: var(--muted);
   }
 
   .entry-date {
